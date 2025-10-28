@@ -2,6 +2,9 @@
 
 [![HitCount](http://hits.dwyl.io/devdcores/BookStoreApp-Distributed-Application.svg)](http://hits.dwyl.io/devdcores/BookStoreApp-Distributed-Application)
 
+> **⚡ Quick Start:** See [QUICK_START.md](./QUICK_START.md) for 30-second setup instructions.
+> **🐛 Encountered Issues?** Check [TROUBLESHOOTING_GUIDE.md](./TROUBLESHOOTING_GUIDE.md) for known issues and solutions.
+
 ---
 
 ## 📚 Giới thiệu dự án

@@ -45,7 +45,7 @@
 
 ### Step 1: Start Docker Compose
 ```bash
-cd /Users/trandinhquangminh/Codespace/BookStoreApp-Microservice-App
+cd /Users/trandinhquangminh/Codespace/BookStore
 docker-compose up --build
 ```
 
@@ -54,7 +54,18 @@ This will:
 - Build Docker images for all microservices (using pre-built JARs)
 - Start all containers in the correct order
 
-### Step 2: Wait for Services to Initialize
+### Step 2: Configure Environment Variables
+Before running, ensure your `.env` file has:
+```bash
+# Stripe API Key for Payment Service
+STRIPE_API_KEY=sk_test_your_actual_stripe_key_here
+# Get a real key from: https://dashboard.stripe.com/test/apikeys
+
+# AI Chat Service API Key (optional)
+REACT_APP_TOGETHER_API_KEY=your_together_ai_key_here
+```
+
+### Step 3: Wait for Services to Initialize
 Expected startup time: **2-3 minutes**
 
 Monitor progress with (in another terminal):
@@ -64,17 +75,17 @@ docker logs -f bookstore-mysql-db  # Database initialization
 docker logs -f bookstore-consul-discovery  # Service registry
 ```
 
-### Step 3: Verify Services Are Running
+### Step 4: Verify Services Are Running
 Once Docker Compose is ready, access these UIs:
 
 | Service | URL | Purpose |
 |---------|-----|---------|
 | API Gateway (Zuul) | http://localhost:8765 | Main entry point for API calls |
 | Consul UI | http://localhost:8500 | Service registry and health check |
+| React Frontend | http://localhost:3000 | Web application with AI chatbot |
 | Zipkin | http://localhost:9411 | Distributed tracing |
 | Prometheus | http://localhost:9090 | Metrics collection |
-| Grafana | http://localhost:3030 | Metrics visualization |
-| Chronograf | http://localhost:8888 | Alternative metrics UI |
+| Grafana | http://localhost:3030 | Metrics visualization (admin/admin) |
 
 ---
 
@@ -167,37 +178,171 @@ Docker Compose will use these JARs to create Docker images.
 
 ---
 
-## 💡 Troubleshooting
+## � Common Issues & Solutions
 
-### If Docker Compose fails to start:
-```bash
-# Clean up old containers
-docker-compose down -v
+### Issue 1: JPA Transaction Rollback in Billing Service
+**Error**: `javax.persistence.RollbackException: Error while committing the transaction`
 
-# Remove old images (if needed)
-docker rmi bookstore-*
+**Root Cause**: Strict country code validation rejecting valid ISO codes
 
-# Try again
-docker-compose up --build
+**Solution Applied**: Updated address validation regex in:
+- `bookstore-billing-service/src/main/java/com/devd/spring/bookstorebillingservice/repository/dao/AddressDao.java`
+- `bookstore-billing-service/src/main/java/com/devd/spring/bookstorebillingservice/web/CreateAddressRequest.java`
+
+**Change**:
+```java
+// Before (too strict - only uppercase)
+@Pattern(regexp = "[A-Z]{2}", message = "2-letter ISO country code required")
+
+// After (accepts both cases)
+@Pattern(regexp = "[A-Za-z]{2}", message = "2-letter ISO country code required")
 ```
 
-### If MySQL fails to initialize:
-```bash
-# Check MySQL logs
-docker logs bookstore-mysql-db
+**Prevention**: Country codes should be case-insensitive in validation.
 
-# MySQL 8.0 might need root password setup on first run
+---
+
+### Issue 2: Payment Customer Setup Error in Payment Service
+**Error**: `Error while setting up payment customer` (without detailed cause)
+
+**Root Cause**: Missing or invalid Stripe API key configuration
+
+**Solution Applied**: 
+1. Added startup validation in `BookstorePaymentServiceApplication.java`:
+   ```java
+   String stripeApiKey = System.getenv("STRIPE_API_KEY");
+   if (stripeApiKey == null || stripeApiKey.isEmpty() || stripeApiKey.contains("your_stripe")) {
+       System.err.println("WARNING: STRIPE_API_KEY is not properly configured. Payment functionality will not work.");
+       System.err.println("Get a test key from: https://dashboard.stripe.com/test/apikeys");
+       Stripe.apiKey = null; // Don't set invalid key
+   } else {
+       Stripe.apiKey = stripeApiKey;
+       System.out.println("Stripe API key configured successfully.");
+   }
+   ```
+
+2. Improved error messages in `PaymentMethodServiceImpl.java`:
+   ```java
+   private String createCustomerAtStripe() {
+       // Check if Stripe API key is configured
+       if (Stripe.apiKey == null || Stripe.apiKey.isEmpty() || Stripe.apiKey.contains("your_stripe")) {
+           throw new RunTimeExceptionPlaceHolder("Stripe API key is not configured. Please set STRIPE_API_KEY in your environment variables.");
+       }
+       // ... rest of the method with better error logging
+   }
+   ```
+
+**Fix Steps**:
+1. Get a real Stripe test key from: https://dashboard.stripe.com/test/apikeys
+2. Update `.env` file:
+   ```bash
+   STRIPE_API_KEY=sk_test_your_actual_stripe_key_here
+   ```
+3. Restart the payment service: `docker-compose up -d bookstore-payment-service`
+
+**Prevention**: Always validate external service credentials at startup.
+
+---
+
+### Issue 3: Service Discovery Timing Issues
+**Error**: `ZuulException` or 404 when calling services through API Gateway
+
+**Root Cause**: Service discovery (Consul) needs time to register all services
+
+**Solution**: Add small delays between service startup and testing:
+```bash
+# Wait for all services to be registered
+sleep 10
+curl http://localhost:8500/v1/catalog/services | jq .
+
+# Then test API Gateway routing
+curl http://localhost:8765/api/catalog/products
 ```
 
-### If services can't connect to each other:
-- Check Consul UI at http://localhost:8500
-- Ensure all services are registered
-- Verify network connectivity between containers: `docker network ls`
+---
+
+### Issue 4: InfluxDB Authorization Errors
+**Error**: `InfluxDB: unauthorized access` when metrics publisher tries to write
+
+**Root Cause**: InfluxDB credentials not properly configured (non-critical)
+
+**Status**: These are warnings only and don't affect core functionality. Services continue to work normally.
+
+**Note**: Can be fixed by:
+1. Setting InfluxDB username/password in docker-compose.yml
+2. Or disabling metrics export in application-docker.yml if not needed
+
+---
+
+## 💡 Debugging Commands
+
+### View All Running Services
+```bash
+docker-compose ps
+```
+
+### Check Service Health
+```bash
+# API Gateway
+curl http://localhost:8765/actuator/health
+
+# Catalog Service
+curl http://localhost:6001/actuator/health
+
+# All services registered in Consul
+curl http://localhost:8500/v1/catalog/services | jq .
+```
+
+### View Service-Specific Logs
+```bash
+# Billing Service (transaction errors)
+docker-compose logs bookstore-billing-service | grep -i "rollback\|transaction\|error"
+
+# Payment Service (Stripe errors)
+docker-compose logs bookstore-payment-service | grep -i "stripe\|payment\|customer"
+
+# API Gateway (routing errors)
+docker-compose logs bookstore-zuul-api-gateway-server | grep -i "error\|exception"
+```
+
+### Test API Through Gateway
+```bash
+# List products
+curl "http://localhost:8765/api/catalog/products?page=0&size=5"
+
+# Test authentication (replace with real token)
+curl -H "Authorization: Bearer <your-token>" \
+  "http://localhost:8765/api/order/orders"
+```
+
+### Check Service Registration Timing
+```bash
+# Check when services register in Consul
+watch -n 2 "curl -s http://localhost:8500/v1/catalog/services | jq '.'"
+```
+
+---
+
+## 📋 Testing Checklist
+
+- [ ] All services report `{"status":"UP"}` on health endpoints
+- [ ] All services show in Consul service discovery
+- [ ] API Gateway can route requests to individual services
+- [ ] Database migrations completed (check MySQL logs)
+- [ ] Frontend loads at http://localhost:3000
+- [ ] Can get OAuth token from account service
+- [ ] Can browse products through API Gateway
+- [ ] Zipkin shows traces (optional, for monitoring)
+- [ ] Grafana shows metrics (optional, for monitoring)
+
+
 
 ---
 
 ## 📚 References
 
+- **Quick Start Guide**: See [QUICK_START.md](./QUICK_START.md) for 30-second setup
+- **Troubleshooting Guide**: See [TROUBLESHOOTING_GUIDE.md](./TROUBLESHOOTING_GUIDE.md) for known issues
 - **Architecture Details**: See `.github/copilot-instructions.md`
 - **Full Documentation**: See `README.md`
 - **API Testing**: Use `Postman/BookStoreApp.postman_collection.json`
