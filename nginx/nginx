@@ -1,0 +1,37 @@
+server {
+    listen 80;
+    listen [::]:80; # Lắng nghe trên cả IPv6 nếu có
+    
+    # THAY THẾ 'bookstoredlk.store' bằng tên miền thực tế của bạn
+    # Hoặc dùng '_' nếu bạn chỉ truy cập qua IP và đây là server block mặc định
+    server_name bookstoredlk.store www.bookstoredlk.store _; 
+
+    # --- Logging (Tùy chọn, bạn có thể thay đổi đường dẫn) ---
+    access_log /var/log/nginx/bookstore.access.log;
+    error_log /var/log/nginx/bookstore.error.log;
+
+    # --- Xử lý Redirect cho /api/ ---
+    location /api/ {
+        # Redirect client đến domain của bạn trên cổng 30003, giữ nguyên phần path và query string
+        # Ví dụ: /api/catalog/products?page=1 -> http://bookstoredlk.store:30003/api/catalog/products?page=1
+        # $request_uri bao gồm cả /api/ và query string
+        # $host giữ nguyên tên miền người dùng đã truy cập
+        # Nếu bạn muốn cố định tên miền redirect: return 301 http://bookstoredlk.store:30003$request_uri;
+        return 301 http://$host:30003$request_uri; 
+    }
+
+    # --- Phục vụ Frontend (React App) cho các location khác ---
+    # THAY THẾ đường dẫn sau bằng thư mục chứa file build của React App của bạn
+    root /var/www/bookstore-frontend/build; 
+
+    location / {
+        # Cấu hình này quan trọng cho các Single Page Application (SPA) như React
+        # Nó sẽ thử tìm file hoặc thư mục khớp với URI, nếu không thấy sẽ trả về /index.html
+        try_files $uri $uri/ /index.html;
+    }
+
+    # (Tùy chọn) Chặn truy cập vào các file ẩn (ví dụ: .git, .htaccess)
+    location ~ /\. {
+        deny all;
+    }
+}

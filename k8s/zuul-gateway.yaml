@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookstore-zuul-api-gateway-server
+  namespace: bookstore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookstore-zuul-api-gateway-server
+  template:
+    metadata:
+      labels:
+        app: bookstore-zuul-api-gateway-server
+    spec:
+      containers:
+      - name: zuul
+        image: datfan06/bookstore-api-gateway-service:latest
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1.5Gi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8765
+        env:
+        - name: SERVER_PORT
+          value: "8765"
+        - name: ZIPKIN_HOST
+          value: "bookstore-zipkin:9411"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "docker"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookstore-zuul-api-gateway-server
+  namespace: bookstore
+spec:
+  type: NodePort
+  ports:
+    - port: 8765
+      targetPort: 8765
+      nodePort: 30003
+  selector:
+    app: bookstore-zuul-api-gateway-server 

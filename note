@@ -1,0 +1,303 @@
+dat@instance-20250411-160829:~/Workspace/test/BookStoreApp-Distributed-Application$ for svc in $(kubectl get svc -n bookstore -o jsonpath='{.items[*].metadata.name}'); do echo "Service: $svc"; kubectl get svc $svc -n bookstore -o jsonpath='{.spec.ports[*].name}:{.spec.ports[*].port}:{.spec.ports[*].targetPort}:{.spec.ports[*].nodePort} {"\n"}'; echo "-----------------------"; done
+Service: bookstore-account-service
+:4001:4001:30004 
+-----------------------
+Service: bookstore-billing-service
+:5001:5001:30005 
+-----------------------
+Service: bookstore-catalog-service
+:6001:6001:30006 
+-----------------------
+Service: bookstore-chronograf
+:8888:8888:30014 
+-----------------------
+Service: bookstore-consul-discovery
+:8500:8500:30002 
+-----------------------
+Service: bookstore-grafana
+:3000:3000:30011 
+-----------------------
+Service: bookstore-influxdb
+:8086:8086:30012 
+-----------------------
+Service: bookstore-kapacitor
+:9092:9092:30015 
+-----------------------
+Service: bookstore-mysql-db
+:3306:3306:30001 
+-----------------------
+Service: bookstore-order-service
+:7001:7001:30007 
+-----------------------
+Service: bookstore-payment-service
+:8001:8001:30008 
+-----------------------
+Service: bookstore-prometheus
+:9090:9090:30010 
+-----------------------
+Service: bookstore-telegraf
+:8125:8125:30013 
+-----------------------
+Service: bookstore-zipkin
+:9411:9411:30009 
+-----------------------
+Service: bookstore-zuul-api-gateway-server
+:8765:8765:30003 
+-----------------------
+dat@instance-20250411-160829:~/Workspace/test/BookStoreApp-Distributed-Application$ kubectl get services -n bookstore
+NAME                                TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+bookstore-account-service           NodePort   10.43.213.128   <none>        4001:30004/TCP   5h54m
+bookstore-billing-service           NodePort   10.43.148.224   <none>        5001:30005/TCP   5h54m
+bookstore-catalog-service           NodePort   10.43.127.34    <none>        6001:30006/TCP   5h54m
+bookstore-chronograf                NodePort   10.43.174.94    <none>        8888:30014/TCP   5h54m
+bookstore-consul-discovery          NodePort   10.43.191.68    <none>        8500:30002/TCP   5h54m
+bookstore-grafana                   NodePort   10.43.67.34     <none>        3000:30011/TCP   5h54m
+bookstore-influxdb                  NodePort   10.43.249.247   <none>        8086:30012/TCP   5h54m
+bookstore-kapacitor                 NodePort   10.43.44.91     <none>        9092:30015/TCP   5h54m
+bookstore-mysql-db                  NodePort   10.43.182.194   <none>        3306:30001/TCP   5h54m
+bookstore-order-service             NodePort   10.43.108.48    <none>        7001:30007/TCP   5h54m
+bookstore-payment-service           NodePort   10.43.158.13    <none>        8001:30008/TCP   5h54m
+bookstore-prometheus                NodePort   10.43.171.141   <none>        9090:30010/TCP   5h54m
+bookstore-telegraf                  NodePort   10.43.226.137   <none>        8125:30013/UDP   5h54m
+bookstore-zipkin                    NodePort   10.43.38.21     <none>        9411:30009/TCP   5h54m
+bookstore-zuul-api-gateway-server   NodePort   10.43.67.234    <none>        8765:30003/TCP   5h54m
+dat@instance-20250411-160829:~/Workspace/test/BookStoreApp-Distributed-Application$ 
+
+
+dat@instance-20250411-160829:~/Workspace/test/BookStoreApp-Distributed-Application$ kubectl exec -n bookstore bookstore-zuul-api-gateway-server-7dfd9c8bd9-ffgnr -- env | grep -E 'SERVICE|PORT|HOST'
+HOSTNAME=bookstore-zuul-api-gateway-server-7dfd9c8bd9-ffgnr
+ZIPKIN_HOST=bookstore-zipkin:9411
+SERVER_PORT=8765
+BOOKSTORE_CONSUL_DISCOVERY_PORT_8500_TCP_PORT=8500
+BOOKSTORE_ZUUL_API_GATEWAY_SERVER_PORT=tcp://10.43.67.234:8765
+BOOKSTORE_ZUUL_API_GATEWAY_SERVER_PORT_8765_TCP_ADDR=10.43.67.234
+BOOKSTORE_GRAFANA_SERVICE_HOST=10.43.67.34
+BOOKSTORE_ORDER_SERVICE_PORT_7001_TCP_PORT=7001
+BOOKSTORE_MYSQL_DB_PORT_3306_TCP_ADDR=10.43.182.194
+BOOKSTORE_CHRONOGRAF_PORT_8888_TCP_ADDR=10.43.174.94
+BOOKSTORE_ZIPKIN_PORT=tcp://10.43.38.21:9411
+BOOKSTORE_CONSUL_DISCOVERY_PORT_8500_TCP=tcp://10.43.191.68:8500
+BOOKSTORE_TELEGRAF_PORT_8125_UDP_PROTO=udp
+BOOKSTORE_TELEGRAF_PORT_8125_UDP_PORT=8125
+BOOKSTORE_PAYMENT_SERVICE_SERVICE_PORT=8001
+BOOKSTORE_PROMETHEUS_SERVICE_PORT=9090
+BOOKSTORE_ACCOUNT_SERVICE_PORT_4001_TCP_PROTO=tcp
+BOOKSTORE_INFLUXDB_SERVICE_HOST=10.43.249.247
+BOOKSTORE_TELEGRAF_SERVICE_PORT=8125
+BOOKSTORE_CHRONOGRAF_SERVICE_PORT=8888
+BOOKSTORE_ORDER_SERVICE_PORT=tcp://10.43.108.48:7001
+KUBERNETES_SERVICE_PORT=443
+BOOKSTORE_ORDER_SERVICE_PORT_7001_TCP_ADDR=10.43.108.48
+BOOKSTORE_BILLING_SERVICE_PORT_5001_TCP_PORT=5001
+BOOKSTORE_KAPACITOR_SERVICE_PORT=9092
+BOOKSTORE_KAPACITOR_PORT_9092_TCP_ADDR=10.43.44.91
+BOOKSTORE_PAYMENT_SERVICE_PORT_8001_TCP_PROTO=tcp
+BOOKSTORE_PROMETHEUS_PORT=tcp://10.43.171.141:9090
+BOOKSTORE_ZUUL_API_GATEWAY_SERVER_PORT_8765_TCP_PORT=8765
+BOOKSTORE_ORDER_SERVICE_SERVICE_PORT=7001
+BOOKSTORE_CONSUL_DISCOVERY_SERVICE_HOST=10.43.191.68
+BOOKSTORE_TELEGRAF_SERVICE_HOST=10.43.226.137
+BOOKSTORE_ZIPKIN_SERVICE_PORT=9411
+BOOKSTORE_GRAFANA_PORT_3000_TCP_ADDR=10.43.67.34
+BOOKSTORE_ORDER_SERVICE_PORT_7001_TCP=tcp://10.43.108.48:7001
+BOOKSTORE_INFLUXDB_PORT=tcp://10.43.249.247:8086
+BOOKSTORE_CATALOG_SERVICE_SERVICE_HOST=10.43.127.34
+BOOKSTORE_CATALOG_SERVICE_PORT_6001_TCP_PORT=6001
+BOOKSTORE_ACCOUNT_SERVICE_PORT_4001_TCP_ADDR=10.43.213.128
+BOOKSTORE_TELEGRAF_PORT=udp://10.43.226.137:8125
+BOOKSTORE_TELEGRAF_PORT_8125_UDP_ADDR=10.43.226.137
+BOOKSTORE_GRAFANA_PORT=tcp://10.43.67.34:3000
+BOOKSTORE_PROMETHEUS_PORT_9090_TCP_PROTO=tcp
+BOOKSTORE_CATALOG_SERVICE_PORT_6001_TCP=tcp://10.43.127.34:6001
+BOOKSTORE_ACCOUNT_SERVICE_SERVICE_PORT=4001
+BOOKSTORE_BILLING_SERVICE_SERVICE_PORT=5001
+BOOKSTORE_MYSQL_DB_SERVICE_HOST=10.43.182.194
+BOOKSTORE_CONSUL_DISCOVERY_PORT_8500_TCP_ADDR=10.43.191.68
+BOOKSTORE_PAYMENT_SERVICE_PORT=tcp://10.43.158.13:8001
+BOOKSTORE_BILLING_SERVICE_PORT_5001_TCP_PROTO=tcp
+BOOKSTORE_BILLING_SERVICE_PORT_5001_TCP_ADDR=10.43.148.224
+BOOKSTORE_ZUUL_API_GATEWAY_SERVER_PORT_8765_TCP_PROTO=tcp
+KUBERNETES_SERVICE_HOST=10.43.0.1
+KUBERNETES_PORT_443_TCP_PORT=443
+BOOKSTORE_PAYMENT_SERVICE_PORT_8001_TCP_PORT=8001
+BOOKSTORE_ZIPKIN_SERVICE_HOST=10.43.38.21
+BOOKSTORE_ACCOUNT_SERVICE_PORT=tcp://10.43.213.128:4001
+BOOKSTORE_CONSUL_DISCOVERY_PORT=tcp://10.43.191.68:8500
+BOOKSTORE_KAPACITOR_PORT_9092_TCP=tcp://10.43.44.91:9092
+BOOKSTORE_TELEGRAF_PORT_8125_UDP=udp://10.43.226.137:8125
+BOOKSTORE_CHRONOGRAF_SERVICE_HOST=10.43.174.94
+BOOKSTORE_PROMETHEUS_PORT_9090_TCP_ADDR=10.43.171.141
+BOOKSTORE_INFLUXDB_PORT_8086_TCP_ADDR=10.43.249.247
+BOOKSTORE_ZUUL_API_GATEWAY_SERVER_SERVICE_PORT=8765
+BOOKSTORE_ZIPKIN_PORT_9411_TCP_PROTO=tcp
+BOOKSTORE_CATALOG_SERVICE_PORT_6001_TCP_PROTO=tcp
+BOOKSTORE_ACCOUNT_SERVICE_PORT_4001_TCP_PORT=4001
+BOOKSTORE_BILLING_SERVICE_PORT_5001_TCP=tcp://10.43.148.224:5001
+BOOKSTORE_KAPACITOR_PORT=tcp://10.43.44.91:9092
+BOOKSTORE_ZIPKIN_PORT_9411_TCP=tcp://10.43.38.21:9411
+BOOKSTORE_MYSQL_DB_PORT_3306_TCP_PORT=3306
+BOOKSTORE_ACCOUNT_SERVICE_PORT_4001_TCP=tcp://10.43.213.128:4001
+BOOKSTORE_CONSUL_DISCOVERY_PORT_8500_TCP_PROTO=tcp
+BOOKSTORE_PAYMENT_SERVICE_SERVICE_HOST=10.43.158.13
+BOOKSTORE_INFLUXDB_PORT_8086_TCP=tcp://10.43.249.247:8086
+BOOKSTORE_ZIPKIN_PORT_9411_TCP_PORT=9411
+BOOKSTORE_GRAFANA_PORT_3000_TCP_PROTO=tcp
+BOOKSTORE_PROMETHEUS_PORT_9090_TCP_PORT=9090
+BOOKSTORE_CHRONOGRAF_PORT_8888_TCP_PORT=8888
+KUBERNETES_PORT_443_TCP_PROTO=tcp
+BOOKSTORE_MYSQL_DB_PORT=tcp://10.43.182.194:3306
+BOOKSTORE_CHRONOGRAF_PORT_8888_TCP_PROTO=tcp
+BOOKSTORE_INFLUXDB_PORT_8086_TCP_PORT=8086
+BOOKSTORE_KAPACITOR_PORT_9092_TCP_PROTO=tcp
+BOOKSTORE_MYSQL_DB_SERVICE_PORT=3306
+BOOKSTORE_ZUUL_API_GATEWAY_SERVER_PORT_8765_TCP=tcp://10.43.67.234:8765
+BOOKSTORE_CHRONOGRAF_PORT_8888_TCP=tcp://10.43.174.94:8888
+BOOKSTORE_INFLUXDB_PORT_8086_TCP_PROTO=tcp
+BOOKSTORE_KAPACITOR_SERVICE_HOST=10.43.44.91
+BOOKSTORE_PAYMENT_SERVICE_PORT_8001_TCP=tcp://10.43.158.13:8001
+BOOKSTORE_GRAFANA_PORT_3000_TCP=tcp://10.43.67.34:3000
+BOOKSTORE_PROMETHEUS_PORT_9090_TCP=tcp://10.43.171.141:9090
+BOOKSTORE_CATALOG_SERVICE_PORT_6001_TCP_ADDR=10.43.127.34
+BOOKSTORE_MYSQL_DB_PORT_3306_TCP=tcp://10.43.182.194:3306
+BOOKSTORE_PROMETHEUS_SERVICE_HOST=10.43.171.141
+KUBERNETES_SERVICE_PORT_HTTPS=443
+BOOKSTORE_GRAFANA_SERVICE_PORT=3000
+BOOKSTORE_ZUUL_API_GATEWAY_SERVER_SERVICE_HOST=10.43.67.234
+KUBERNETES_PORT_443_TCP=tcp://10.43.0.1:443
+BOOKSTORE_PAYMENT_SERVICE_PORT_8001_TCP_ADDR=10.43.158.13
+BOOKSTORE_CATALOG_SERVICE_SERVICE_PORT=6001
+BOOKSTORE_INFLUXDB_SERVICE_PORT=8086
+BOOKSTORE_MYSQL_DB_PORT_3306_TCP_PROTO=tcp
+BOOKSTORE_CHRONOGRAF_PORT=tcp://10.43.174.94:8888
+BOOKSTORE_ORDER_SERVICE_PORT_7001_TCP_PROTO=tcp
+BOOKSTORE_GRAFANA_PORT_3000_TCP_PORT=3000
+BOOKSTORE_ACCOUNT_SERVICE_SERVICE_HOST=10.43.213.128
+BOOKSTORE_CONSUL_DISCOVERY_SERVICE_PORT=8500
+BOOKSTORE_BILLING_SERVICE_SERVICE_HOST=10.43.148.224
+BOOKSTORE_BILLING_SERVICE_PORT=tcp://10.43.148.224:5001
+KUBERNETES_PORT_443_TCP_ADDR=10.43.0.1
+BOOKSTORE_ZIPKIN_PORT_9411_TCP_ADDR=10.43.38.21
+KUBERNETES_PORT=tcp://10.43.0.1:443
+BOOKSTORE_ORDER_SERVICE_SERVICE_HOST=10.43.108.48
+BOOKSTORE_KAPACITOR_PORT_9092_TCP_PORT=9092
+BOOKSTORE_CATALOG_SERVICE_PORT=tcp://10.43.127.34:6001
+dat@instance-20250411-160829:~/Workspace/test/BookStoreApp-Distributed-Application$ 
+
+kubectl get svc -n bookstore -o custom-columns=SERVICE:.metadata.name,PORT:".spec.ports[*].port",NODEPORT:".spec.ports[*].nodePort" | sort
+
+<me,PORT:".spec.ports[*].port",NODEPORT:".spec.ports[*].nodePort" | sort
+SERVICE                             PORT   NODEPORT
+bookstore-account-service           4001   30004
+bookstore-billing-service           5001   30005
+bookstore-catalog-service           6001   30006
+bookstore-chronograf                8888   30014
+bookstore-consul-discovery          8500   30002
+bookstore-grafana                   3000   30011
+bookstore-influxdb                  8086   30012
+bookstore-kapacitor                 9092   30015
+bookstore-mysql-db                  3306   30001
+bookstore-order-service             7001   30007
+bookstore-payment-service           8001   30008
+bookstore-prometheus                9090   30010
+bookstore-telegraf                  8125   30013
+bookstore-zipkin                    9411   30009
+bookstore-zuul-api-gateway-server   8765   30003
+
+
+kubectl exec -n bookstore deploy/bookstore-account-service -- env | grep -i host | grep -v hostname | sort
+<okstore-account-service -- env | grep -i host | grep -v hostname | sort
+BOOKSTORE_ACCOUNT_SERVICE_SERVICE_HOST=10.43.213.128
+BOOKSTORE_BILLING_SERVICE_SERVICE_HOST=10.43.148.224
+BOOKSTORE_CATALOG_SERVICE_SERVICE_HOST=10.43.127.34
+BOOKSTORE_CHRONOGRAF_SERVICE_HOST=10.43.174.94
+BOOKSTORE_CONSUL_DISCOVERY_SERVICE_HOST=10.43.191.68
+BOOKSTORE_GRAFANA_SERVICE_HOST=10.43.67.34
+BOOKSTORE_INFLUXDB_SERVICE_HOST=10.43.249.247
+BOOKSTORE_KAPACITOR_SERVICE_HOST=10.43.44.91
+BOOKSTORE_MYSQL_DB_SERVICE_HOST=10.43.182.194
+BOOKSTORE_ORDER_SERVICE_SERVICE_HOST=10.43.108.48
+BOOKSTORE_PAYMENT_SERVICE_SERVICE_HOST=10.43.158.13
+BOOKSTORE_PROMETHEUS_SERVICE_HOST=10.43.171.141
+BOOKSTORE_TELEGRAF_SERVICE_HOST=10.43.226.137
+BOOKSTORE_ZIPKIN_SERVICE_HOST=10.43.38.21
+BOOKSTORE_ZUUL_API_GATEWAY_SERVER_SERVICE_HOST=10.43.67.234
+HOSTNAME=bookstore-account-service-69d575fdc-xmkwz
+KUBERNETES_SERVICE_HOST=10.43.0.1
+ZIPKIN_HOST=bookstore-zipkin:9411
+
+kubectl port-forward -n bookstore svc/bookstore-zuul-api-gateway-server 8765:8765 & sleep 2 && curl -s localhost:8765/actuator/health || echo "Failed to access health endpoint"
+<calhost:8765/actuator/health || echo "Failed to access health endpoint"
+[1] 206088
+Forwarding from 127.0.0.1:8765 -> 8765
+Forwarding from [::1]:8765 -> 8765
+Handling connection for 8765
+{"status":"UP","groups":["liveness","readiness"]}dat@instance-20250411-160829:~/Workspace/test/BookStoreApp-
+dat@instance-20250411-160829:~/Workspace/test/BookStoreApp-Distributed-Application$
+
+Truy cập bên ngoài (Dịch vụ NodePort):
+MySQL DB: 30001 (Cổng nội bộ: 3306)
+Consul Discovery: 30002 (Cổng nội bộ: 8500)
+Zuul API Gateway: 30003 (Cổng nội bộ: 8765)
+Account Service: 30004 (Cổng nội bộ: 4001)
+Billing Service: 30005 (Cổng nội bộ: 5001)
+Catalog Service: 30006 (Cổng nội bộ: 6001)
+Order Service: 30007 (Cổng nội bộ: 7001)
+Payment Service: 30008 (Cổng nội bộ: 8001)
+Zipkin: 30009 (Cổng nội bộ: 9411)
+Prometheus: 30010 (Cổng nội bộ: 9090)
+Grafana: 30011 (Cổng nội bộ: 3000)
+InfluxDB: 30012 (Cổng nội bộ: 8086)
+Telegraf: 30013 (Cổng nội bộ: 8125)
+Chronograf: 30014 (Cổng nội bộ: 8888)
+Kapacitor: 30015 (Cổng nội bộ: 9092)
+Luồng giao tiếp giữa các dịch vụ:
+Tất cả các microservice (account, billing, catalog, order, payment) đăng ký với dịch vụ Consul discovery
+Tất cả các microservice gửi dữ liệu tracing đến Zipkin (xem biến môi trường ZIPKIN_HOST)
+API Gateway (Zuul) sử dụng Consul để phát hiện và định tuyến đến các dịch vụ khác
+Hệ thống giám sát (Prometheus, Grafana, InfluxDB, Telegraf, Chronograf, Kapacitor) thu thập chỉ số
+Vấn đề kết nối và giải pháp tiềm năng:
+Zuul API Gateway đang gặp khó khăn khi kết nối với account service
+Service discovery dường như đang hoạt động (các dịch vụ đang đăng ký với Consul)
+Account service có đúng các nhãn cho service selector
+Không có network policy nào hạn chế lưu lượng
+Có thể có vấn đề về cách Zuul được cấu hình để kết nối với account service
+Luồng giao tiếp chính là:
+Client → API Gateway (Zuul, cổng 30003)
+API Gateway → Consul Discovery (để tìm dịch vụ)
+API Gateway → Microservices (account, billing, catalog, order, payment)
+Tất cả dịch vụ → Zipkin (cho distributed tracing)
+Tất cả dịch vụ → Hệ thống giám sát (cho metrics và logging)
+Để khắc phục các vấn đề kết nối, bạn có thể cần:
+Kiểm tra cấu hình Spring Cloud trong Zuul API Gateway
+Xác minh rằng đăng ký dịch vụ Consul đang hoạt động chính xác
+Đảm bảo tên dịch vụ trong routes của Zuul khớp chính xác với những gì được đăng ký trong Consul
+Kiểm tra bất kỳ vấn đề kết nối mạng nào giữa các pod
+
+
+kubectl delete all --all -n bookstore
+
+MySQL: 30001
+Consul: 30002
+Zuul Gateway: 30003
+Account Service: 30004
+Billing Service: 30005
+Catalog Service: 30006
+Order Service: 30007
+Payment Service: 30008
+Zipkin: 30009
+Prometheus: 30010
+Grafana: 30011
+InfluxDB: 30012
+Telegraf: 30013 (UDP)
+Chronograf: 30014
+Kapacitor: 30015
+
+
+chmod +x build_and_push.sh && ./build_and_push.sh docker-hub
+
+kubectl get pods -n bookstore
+
+
+kubectl scale deployment --all --replicas=0 -n bookstore
+
+kubectl rollout restart deployment/bookstore-zuul-api-gateway-server -n bookstore

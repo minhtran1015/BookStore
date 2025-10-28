@@ -1,0 +1,228 @@
+/* UserListScreen.css */
+.user-list-screen {
+  padding: 90px 0 50px;
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+.user-list-card {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+/* Phần tiêu đề */
+.user-list-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #5e6472;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.admin-icon {
+  margin-right: 12px;
+  color: #a6e3e9;
+  font-size: 1.6rem;
+}
+
+/* Phần tìm kiếm */
+.search-icon {
+  background-color: white;
+  border-right: none;
+  color: #a6e3e9;
+}
+
+.search-input {
+  border-left: none;
+  box-shadow: none !important;
+}
+
+.search-input:focus {
+  border-color: #a6e3e9;
+}
+
+.clear-search-btn {
+  background: none;
+  border: 1px solid #ced4da;
+  border-left: none;
+  color: #5e6472;
+}
+
+.clear-search-btn:hover {
+  background: rgba(166, 227, 233, 0.1);
+  color: #5e6472;
+}
+
+/* Bảng người dùng */
+.user-table-container {
+  margin: 20px 0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.user-table {
+  margin-bottom: 0;
+}
+
+.user-table thead {
+  background: linear-gradient(135deg, rgba(166, 227, 233, 0.2), rgba(249, 197, 209, 0.2));
+}
+
+.user-table thead th {
+  border: none;
+  color: #5e6472;
+  font-weight: 600;
+  padding: 15px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.user-table tbody tr {
+  transition: all 0.2s;
+  vertical-align: middle;
+}
+
+.user-table tbody tr:hover {
+  background-color: rgba(166, 227, 233, 0.05);
+  transform: translateY(-2px);
+}
+
+.user-id {
+  font-family: monospace;
+  color: #8795a1;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #5e6472;
+}
+
+.user-email {
+  color: #5e6472;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.user-email i {
+  margin-right: 5px;
+  color: #a6e3e9;
+}
+
+.user-email:hover {
+  color: #a6e3e9;
+}
+
+/* Phần vai trò */
+.user-roles {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.role {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.role i {
+  margin-right: 5px;
+}
+
+.admin-role {
+  background-color: rgba(72, 187, 120, 0.1);
+  color: #38a169;
+}
+
+.user-role {
+  background-color: rgba(166, 227, 233, 0.1);
+  color: #5e6472;
+}
+
+/* Phần nút thao tác */
+.actions-cell {
+  min-width: 110px;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-action {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 0;
+}
+
+.edit-btn {
+  color: #5e6472;
+  border: 1px solid #e9ecef;
+}
+
+.edit-btn:hover {
+  background-color: rgba(166, 227, 233, 0.2);
+  color: #5e6472;
+}
+
+.delete-btn {
+  background-color: rgba(229, 62, 62, 0.1);
+  color: #e53e3e;
+  border: none;
+}
+
+.delete-btn:hover {
+  background-color: rgba(229, 62, 62, 0.2);
+  color: #e53e3e;
+}
+
+/* Thông tin phân trang */
+.user-count-info {
+  color: #8795a1;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.clear-search-link {
+  padding: 0;
+  color: #a6e3e9;
+  text-decoration: none;
+}
+
+/* Trạng thái trống */
+.empty-users {
+  text-align: center;
+  padding: 50px 20px;
+  color: #8795a1;
+}
+
+.empty-users i {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  color: #e9ecef;
+}
+
+.empty-users p {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}
+
+.clear-filter-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+}

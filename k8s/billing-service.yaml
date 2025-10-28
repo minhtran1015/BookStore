@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookstore-billing-service
+  namespace: bookstore
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bookstore-billing-service
+  template:
+    metadata:
+      labels:
+        app: bookstore-billing-service
+    spec:
+      containers:
+      - name: billing
+        image: datfan06/bookstore-billing-service:latest
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "100m"
+          limits:
+            memory: "2Gi"
+            cpu: "300m"
+        ports:
+        - containerPort: 5001
+        env:
+        - name: SERVER_PORT
+          value: "5001"
+        - name: ZIPKIN_HOST
+          value: "bookstore-zipkin:9411"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "docker"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookstore-billing-service
+  namespace: bookstore
+spec:
+  type: NodePort
+  ports:
+    - port: 5001
+      targetPort: 5001
+      nodePort: 30005
+  selector:
+    app: bookstore-billing-service 

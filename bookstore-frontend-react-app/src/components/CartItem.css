@@ -1,0 +1,149 @@
+.cart-item {
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(166, 227, 233, 0.2);
+  margin-bottom: 0 !important;
+  transition: all 0.3s ease;
+}
+
+.cart-item:hover {
+  background-color: rgba(249, 249, 249, 0.5);
+}
+
+.cart-item:last-child {
+  border-bottom: none;
+}
+
+/* Phần hình ảnh sản phẩm */
+.cart-item img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.cart-item img:hover {
+  transform: scale(1.05);
+}
+
+/* Phần thông tin sản phẩm */
+.cart-item a {
+  color: #5e6472;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  display: inline-block;
+  font-size: 1.1rem;
+}
+
+.cart-item a:hover {
+  color: #a6e3e9;
+  transform: translateX(3px);
+}
+
+/* Phần giá sản phẩm */
+.cart-item .price-column {
+  font-weight: 600;
+  color: #5e6472;
+  font-size: 1.05rem;
+}
+
+/* Dropdown số lượng */
+.cart-item select.form-control {
+  width: 80px;
+  border-radius: 8px;
+  border: 1px solid rgba(166, 227, 233, 0.3);
+  background-color: #f7fafc;
+  color: #5e6472;
+  font-weight: 500;
+  box-shadow: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  padding-right: 25px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235e6472'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
+  background-position: right 8px center;
+  background-repeat: no-repeat;
+  background-size: 12px;
+}
+
+.cart-item select.form-control:focus {
+  border-color: #a6e3e9;
+  box-shadow: 0 0 0 0.2rem rgba(166, 227, 233, 0.25);
+}
+
+/* Phần giá tổng của mỗi sản phẩm */
+.cart-item .subtotal-column {
+  font-weight: 700;
+  color: #5e6472;
+  font-size: 1.1rem;
+}
+
+/* Nút xóa item */
+.cart-item .btn-remove {
+  background: none;
+  border: none;
+  color: #f67280;
+  transition: all 0.2s ease;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.cart-item .btn-remove:hover {
+  background-color: rgba(246, 114, 128, 0.1);
+  transform: translateY(-2px);
+}
+
+.cart-item .btn-remove i {
+  margin-right: 4px;
+}
+
+/* Responsive styling */
+@media (max-width: 768px) {
+  .cart-item {
+    padding: 15px 0;
+  }
+  
+  .cart-item img {
+    height: 90px;
+  }
+  
+  .cart-item a {
+    font-size: 1rem;
+  }
+  
+  .cart-item .price-column,
+  .cart-item .subtotal-column {
+    font-size: 0.95rem;
+  }
+  
+  .cart-item select.form-control {
+    width: 70px;
+    font-size: 0.9rem;
+  }
+  
+  .cart-item .btn-remove {
+    padding: 6px 8px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .cart-item img {
+    height: 80px;
+    margin-bottom: 10px;
+  }
+  
+  .cart-item .row {
+    align-items: center;
+  }
+  
+  .cart-item select.form-control {
+    width: 65px;
+    font-size: 0.85rem;
+  }
+}

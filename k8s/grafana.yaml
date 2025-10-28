@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-pvc
+  namespace: bookstore
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookstore-grafana
+  namespace: bookstore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookstore-grafana
+  template:
+    metadata:
+      labels:
+        app: bookstore-grafana
+    spec:
+      initContainers:
+      - name: init-copy-dashboards
+        image: datfan06/graphana:latest
+        command: ['sh', '-c']
+        args:
+          - |
+            echo "Creating dashboards directory..."
+            mkdir -p /var/lib/grafana/dashboards
+            echo "Copying dashboards from /tmp/dashboards-source..."
+            if [ -d "/tmp/dashboards-source" ] && [ -n "$(ls -A /tmp/dashboards-source)" ]; then
+              cp /tmp/dashboards-source/*.json /var/lib/grafana/dashboards/
+            else
+              echo "No dashboards found in /tmp/dashboards-source or directory does not exist."
+            fi
+            echo "Setting permissions..."
+            chmod -R 777 /var/lib/grafana/
+            echo "Init container finished."
+        volumeMounts:
+        - name: grafana-storage
+          mountPath: /var/lib/grafana
+      containers:
+      - name: grafana
+        image: datfan06/graphana:latest
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 150m
+            memory: 256Mi
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - name: grafana-storage
+          mountPath: /var/lib/grafana
+      volumes:
+      - name: grafana-storage
+        persistentVolumeClaim:
+          claimName: grafana-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookstore-grafana
+  namespace: bookstore
+spec:
+  type: NodePort
+  ports:
+    - port: 3000
+      targetPort: 3000
+      nodePort: 30011
+  selector:
+    app: bookstore-grafana 

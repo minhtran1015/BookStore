@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eureka-server-deployment
+  namespace: bookstore
+  labels:
+    app: eureka-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eureka-server
+  template:
+    metadata:
+      labels:
+        app: eureka-server
+    spec:
+      containers:
+      - name: eureka-server
+        image: datfan06/bookstore-eureka-discovery-service:latest # Ensure this matches your Docker Hub username and image name
+        ports:
+        - containerPort: 8761
+        env:
+        - name: EUREKA_CLIENT_REGISTER_WITH_EUREKA
+          value: "false"
+        - name: EUREKA_CLIENT_FETCH_REGISTRY
+          value: "false"
+        - name: EUREKA_INSTANCE_HOSTNAME
+          value: eureka-server-service # This should match the K8s service name for Eureka
+        # Add any other environment variables your Eureka server needs
+        # For example, if running a single instance for testing:
+        # - name: EUREKA_SERVER_WAIT_TIME_IN_MS_WHEN_SYNC_EMPTY
+        #   value: "0"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka-server-service # This name is used by EUREKA_INSTANCE_HOSTNAME
+  namespace: bookstore
+  labels:
+    app: eureka-server
+spec:
+  selector:
+    app: eureka-server
+  ports:
+  - name: http
+    protocol: TCP
+    port: 8761
+    targetPort: 8761
+  type: ClusterIP # Or LoadBalancer if you need to expose it externally directly, though usually not for Eureka 

@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secrets
+  namespace: bookstore
+type: Opaque
+data:
+  mysql-root-password: cjAwdFBhU1N3b3JE
+  mysql-password: UGFTU3dvckQ=
+  mysql-user: Ym9va3N0b3JlREJB
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: bookstore
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookstore-mysql-db
+  namespace: bookstore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookstore-mysql-db
+  template:
+    metadata:
+      labels:
+        app: bookstore-mysql-db
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:5.7
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "300m"
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_DATABASE
+          value: "bookstore_db"
+        - name: MYSQL_USER
+          value: "bookstoreDBA"
+        - name: MYSQL_PASSWORD
+          value: "PaSSworD"
+        - name: MYSQL_ROOT_PASSWORD
+          value: "r00tPaSSworD"
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookstore-mysql-db
+  namespace: bookstore
+spec:
+  type: NodePort
+  ports:
+    - port: 3306
+      targetPort: 3306
+      nodePort: 30001
+  selector:
+    app: bookstore-mysql-db 

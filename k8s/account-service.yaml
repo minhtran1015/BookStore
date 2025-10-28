@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookstore-account-service
+  namespace: bookstore
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bookstore-account-service
+  template:
+    metadata:
+      labels:
+        app: bookstore-account-service
+    spec:
+      containers:
+      - name: account
+        image: datfan06/bookstore-account-service:latest
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "500m"
+        ports:
+        - containerPort: 4001
+        env:
+        - name: SERVER_PORT
+          value: "4001"
+        - name: ZIPKIN_HOST
+          value: "bookstore-zipkin:9411"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "docker"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookstore-account-service
+  namespace: bookstore
+spec:
+  type: NodePort
+  ports:
+    - port: 4001
+      targetPort: 4001
+      nodePort: 30004
+  selector:
+    app: bookstore-account-service 

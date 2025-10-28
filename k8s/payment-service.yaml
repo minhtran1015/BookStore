@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookstore-payment-service
+  namespace: bookstore
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bookstore-payment-service
+  template:
+    metadata:
+      labels:
+        app: bookstore-payment-service
+    spec:
+      containers:
+      - name: payment
+        image: datfan06/bookstore-payment-service:latest
+        resources:
+          requests:
+            memory: "1536Mi"
+            cpu: "100m"
+          limits:
+            memory: "3Gi"
+            cpu: "300m"
+        ports:
+        - containerPort: 8001
+        env:
+        - name: SERVER_PORT
+          value: "8001"
+        - name: ZIPKIN_HOST
+          value: "bookstore-zipkin:9411"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "docker"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookstore-payment-service
+  namespace: bookstore
+spec:
+  type: NodePort
+  ports:
+    - port: 8001
+      targetPort: 8001
+      nodePort: 30008
+  selector:
+    app: bookstore-payment-service 

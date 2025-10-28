@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bookstore-ingress
+  namespace: bookstore
+  annotations:
+    # nginx.ingress.kubernetes.io/use-regex: "true" # Không cần nếu dùng pathType: Prefix cho /api
+    # nginx.ingress.kubernetes.io/rewrite-target: /$2 # Bỏ đi vì Zuul đã xử lý /api prefix
+    # nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /api # Đổi thành /api với pathType Prefix
+        pathType: Prefix 
+        backend:
+          service:
+            name: bookstore-zuul-api-gateway-server
+            port:
+              number: 8765
+      - path: / # Rule này phải ở sau rule /api/ để không bắt các request /api/
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-node-service
+            port:
+              number: 80 

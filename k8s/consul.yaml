@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookstore-consul-discovery
+  namespace: bookstore
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bookstore-consul-discovery
+  template:
+    metadata:
+      labels:
+        app: bookstore-consul-discovery
+    spec:
+      containers:
+      - name: consul
+        image: consul:1.15.4
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "300m"
+        ports:
+        - containerPort: 8500
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookstore-consul-discovery
+  namespace: bookstore
+spec:
+  type: NodePort
+  ports:
+    - port: 8500
+      targetPort: 8500
+      nodePort: 30002
+  selector:
+    app: bookstore-consul-discovery 

@@ -1,0 +1,264 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: influxdb-secrets
+  namespace: bookstore
+type: Opaque
+data:
+  admin-password: MTIzNDU2Nzg=
+  admin-token: QlQyUElhSE8zcTlDeUJaN0FUNXlCMUZfVmQtWHFaVkl4OUozelZBeUhDbHZjMGNydExVSHZpaVVuY29IOTdRbklhWmkyeXRNd1RkdElHN3V6ZWctcEE9PQ==
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: influxdb-pvc
+  namespace: bookstore
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookstore-influxdb
+  namespace: bookstore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookstore-influxdb
+  template:
+    metadata:
+      labels:
+        app: bookstore-influxdb
+    spec:
+      containers:
+      - name: influxdb
+        image: influxdb:1.8.10
+        ports:
+        - containerPort: 8086
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 300m
+            memory: 512Mi
+        env:
+        - name: INFLUXDB_DB
+          value: "telegraf"
+        - name: INFLUXDB_USER
+          value: "admin"
+        - name: INFLUXDB_USER_PASSWORD
+          value: "12345678"
+        - name: INFLUXDB_ADMIN_USER
+          value: "admin"
+        - name: INFLUXDB_ADMIN_PASSWORD
+          value: "12345678"
+        volumeMounts:
+        - name: influxdb-storage
+          mountPath: /var/lib/influxdb
+      volumes:
+      - name: influxdb-storage
+        persistentVolumeClaim:
+          claimName: influxdb-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookstore-influxdb
+  namespace: bookstore
+spec:
+  type: NodePort
+  ports:
+    - port: 8086
+      targetPort: 8086
+      nodePort: 30012
+  selector:
+    app: bookstore-influxdb
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookstore-telegraf
+  namespace: bookstore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookstore-telegraf
+  template:
+    metadata:
+      labels:
+        app: bookstore-telegraf
+    spec:
+      containers:
+      - name: telegraf
+        image: datfan06/bookstore-telegraf:latest
+        ports:
+        - containerPort: 8125
+          protocol: UDP
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 150m
+            memory: 128Mi
+        env:
+        - name: HOSTNAME
+          value: "bookstore-telegraf"
+        volumeMounts:
+        - name: docker-sock
+          mountPath: /var/run/docker.sock
+      volumes:
+      - name: docker-sock
+        hostPath:
+          path: /var/run/docker.sock
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookstore-telegraf
+  namespace: bookstore
+spec:
+  type: NodePort
+  ports:
+    - port: 8125
+      targetPort: 8125
+      nodePort: 30013
+      protocol: UDP
+  selector:
+    app: bookstore-telegraf
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: chronograf-pvc
+  namespace: bookstore
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookstore-chronograf
+  namespace: bookstore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookstore-chronograf
+  template:
+    metadata:
+      labels:
+        app: bookstore-chronograf
+    spec:
+      containers:
+      - name: chronograf
+        image: chronograf:1.9.4
+        ports:
+        - containerPort: 8888
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 150m
+            memory: 256Mi
+        env:
+        - name: INFLUXDB_URL
+          value: "http://bookstore-influxdb:8086"
+        - name: KAPACITOR_URL
+          value: "http://bookstore-kapacitor:9092"
+        - name: INFLUXDB_USERNAME
+          value: "admin"
+        - name: INFLUXDB_PASSWORD
+          value: "12345678"
+        - name: INFLUXDB_ORG
+          value: "bookstore"
+        - name: INFLUXDB_TOKEN
+          value: "BT2PIaHO3q9CyBZ7AT5yB1F_Vd-XqZVIx9J3zVAyHClvc0crtLUHviiUncoH97QnIaZi2ytMwTdtIG7uzeg-pA=="
+        volumeMounts:
+        - name: chronograf-storage
+          mountPath: /var/lib/chronograf
+      volumes:
+      - name: chronograf-storage
+        persistentVolumeClaim:
+          claimName: chronograf-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookstore-chronograf
+  namespace: bookstore
+spec:
+  type: NodePort
+  ports:
+    - port: 8888
+      targetPort: 8888
+      nodePort: 30014
+  selector:
+    app: bookstore-chronograf
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookstore-kapacitor
+  namespace: bookstore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookstore-kapacitor
+  template:
+    metadata:
+      labels:
+        app: bookstore-kapacitor
+    spec:
+      containers:
+      - name: kapacitor
+        image: kapacitor:1.6.6
+        ports:
+        - containerPort: 9092
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 150m
+            memory: 256Mi
+        env:
+        - name: KAPACITOR_HOSTNAME
+          value: "bookstore-kapacitor"
+        - name: KAPACITOR_INFLUXDB_0_URLS_0
+          value: "http://bookstore-influxdb:8086"
+        - name: KAPACITOR_INFLUXDB_0_USERNAME
+          value: "admin"
+        - name: KAPACITOR_INFLUXDB_0_PASSWORD
+          value: "12345678"
+        - name: KAPACITOR_INFLUXDB_0_ORG
+          value: "bookstore"
+        - name: KAPACITOR_INFLUXDB_0_TOKEN
+          value: "BT2PIaHO3q9CyBZ7AT5yB1F_Vd-XqZVIx9J3zVAyHClvc0crtLUHviiUncoH97QnIaZi2ytMwTdtIG7uzeg-pA=="
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookstore-kapacitor
+  namespace: bookstore
+spec:
+  type: NodePort
+  ports:
+    - port: 9092
+      targetPort: 9092
+      nodePort: 30015
+  selector:
+    app: bookstore-kapacitor 

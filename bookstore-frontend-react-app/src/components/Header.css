@@ -1,0 +1,300 @@
+.bookstore-navbar {
+  background: linear-gradient(135deg, #a6e3e9 0%, #f9c5d1 100%) !important;
+  padding: 12px 0;
+  box-shadow: 0 4px 20px rgba(166, 227, 233, 0.3);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  border: none !important; /* Xóa viền đen */
+}
+
+.bookstore-navbar.scrolled {
+  padding: 8px 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.navbar-spacer {
+  height: 76px; /* Phải bằng với chiều cao của navbar để tránh nội dung bị che khuất */
+}
+
+.bookstore-brand {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #5e6472 !important;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  background: transparent !important; /* Loại bỏ background */
+  padding: 0 !important; /* Giảm padding */
+  border: none !important; /* Loại bỏ border */
+}
+
+.navbar-logo {
+  height: 38px;
+  width: auto;
+  margin-right: 14px;
+  transition: all 0.3s ease;
+}
+
+.bookstore-brand:hover {
+  transform: translateY(-2px);
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Tăng kích thước cho menu bên phải */
+.navbar-nav .nav-link {
+  color: #5e6472 !important;
+  font-weight: 600;
+  margin: 0 10px;
+  padding: 10px 18px; /* Tăng padding */
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  font-size: 1.05rem; /* Tăng kích thước font */
+}
+
+.navbar-nav .nav-link:hover {
+  color: #5e6472 !important;
+  background-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.nav-icon {
+  font-size: 1.25rem; /* Tăng kích thước icon */
+  margin-right: 10px;
+  transition: all 0.3s ease;
+}
+
+.nav-text {
+  font-weight: 600;
+  font-size: 1.05rem; /* Tăng kích thước text */
+}
+
+/* Hiệu ứng đặc biệt cho Cart */
+.navbar-nav .nav-link i.fa-shopping-cart {
+  position: relative;
+}
+
+.navbar-nav .nav-link i.fa-shopping-cart:after {
+  content: attr(data-count);
+  position: absolute;
+  top: -10px; /* Điều chỉnh vị trí */
+  right: -10px; /* Điều chỉnh vị trí */
+  background: #f67280;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.75rem; /* Tăng nhẹ kích thước */
+  width: 20px; /* Tăng kích thước */
+  height: 20px; /* Tăng kích thước */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.3s ease;
+}
+
+.navbar-nav .nav-link i.fa-shopping-cart[data-count]:not([data-count="0"]):after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Dropdown styling */
+.navbar-nav .dropdown-menu {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 12px; /* Tăng padding */
+  margin-top: 15px;
+  background: white;
+  min-width: 220px; /* Tăng chiều rộng */
+  animation: fadeInDown 0.3s ease forwards;
+  right: 0;
+  left: auto;
+}
+
+.navbar-nav .dropdown-item {
+  color: #5e6472;
+  padding: 12px 16px; /* Tăng padding */
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  font-size: 1rem; /* Tăng kích thước font */
+}
+
+.dropdown-icon {
+  margin-right: 12px; /* Tăng margin */
+  font-size: 1rem; /* Tăng kích thước */
+  width: 24px; /* Tăng chiều rộng */
+  color: #a6e3e9;
+  text-align: center;
+}
+
+.navbar-nav .dropdown-item:hover {
+  background: linear-gradient(135deg, rgba(166, 227, 233, 0.2), rgba(249, 197, 209, 0.2));
+  color: #5e6472;
+  transform: translateX(5px);
+}
+
+.user-dropdown .dropdown-toggle::after,
+.admin-dropdown .dropdown-toggle::after {
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* Navbar toggler custom styling */
+.navbar-toggler {
+  border: none;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  position: relative;
+  background: transparent;
+}
+
+.navbar-toggler:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.navbar-toggler-icon {
+  background-image: none !important;
+  position: relative;
+  width: 30px;
+  height: 2px;
+  background-color: #5e6472;
+  display: inline-block;
+  transition: background-color 0.3s ease;
+}
+
+.navbar-toggler-icon:before,
+.navbar-toggler-icon:after {
+  content: '';
+  position: absolute;
+  width: 30px;
+  height: 2px;
+  background-color: #5e6472;
+  left: 0;
+  transition: all 0.3s ease;
+}
+
+.navbar-toggler-icon:before {
+  top: -8px;
+}
+
+.navbar-toggler-icon:after {
+  bottom: -8px;
+}
+
+.navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
+  background-color: transparent;
+}
+
+.navbar-toggler[aria-expanded="true"] .navbar-toggler-icon:before {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.navbar-toggler[aria-expanded="true"] .navbar-toggler-icon:after {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+/* Loại bỏ màu tối cho navbar */
+.navbar-dark {
+  --bs-navbar-color: #5e6472 !important;
+  --bs-navbar-hover-color: #5e6472 !important;
+  --bs-navbar-active-color: #5e6472 !important;
+}
+
+/* Media queries */
+@media (max-width: 992px) {
+  .navbar-spacer {
+    height: 68px; /* Nhỏ hơn trên mobile */
+  }
+  
+  .navbar-collapse {
+    background: rgba(255, 255, 255, 0.97);
+    margin: 15px -15px -15px;
+    padding: 20px;
+    border-radius: 0 0 15px 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  .navbar-nav .nav-link {
+    color: #5e6472 !important;
+    padding: 12px 20px;
+    margin: 5px 0;
+    border-radius: 10px;
+  }
+  
+  .navbar-nav .nav-link:hover {
+    color: #5e6472 !important;
+    background-color: rgba(166, 227, 233, 0.2);
+  }
+  
+  .navbar-nav .dropdown-menu {
+    box-shadow: none;
+    padding: 0 0 0 20px;
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  
+  .navbar-nav .dropdown-item {
+    padding: 10px 15px;
+  }
+  
+  .navbar-logo {
+    height: 32px;
+    margin-right: 10px;
+  }
+  
+  .bookstore-brand {
+    font-size: 1.6rem;
+  }
+}
+
+@media (min-width: 993px) {
+  .navbar-nav .dropdown:hover .dropdown-menu {
+    display: block;
+  }
+  
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .nav-text {
+    font-size: 0.95rem;
+  }
+  
+  .navbar-logo {
+    height: 30px;
+    margin-right: 8px;
+  }
+  
+  .bookstore-brand {
+    font-size: 1.4rem;
+  }
+  
+  .navbar-nav .nav-link {
+    padding: 10px 15px;
+  }
+}

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  namespace: bookstore # Assuming the same namespace as your ingress
+  labels:
+    app: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: datfan06/bookstore-frontend-react-app:latest # Replace with your actual image name/path if different
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-node-service # Matches the serviceName in your Ingress
+  namespace: bookstore         # Matches the namespace in your Ingress and Deployment
+  labels:
+    app: frontend
+spec:
+  selector:
+    app: frontend # Selects pods with label "app: frontend"
+  ports:
+    - protocol: TCP
+      port: 80      # Port exposed by the Service
+      targetPort: 80  # Changed from 3000 to 80 (Port on the Nginx container)
+  type: ClusterIP     # Exposes the service on a cluster-internal IP 
