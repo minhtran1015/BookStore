@@ -140,6 +140,7 @@ services:
       - SERVER_PORT=8001
       - ZIPKIN_HOST=bookstore-zipkin:9411
       - SPRING_PROFILES_ACTIVE=docker
+      - STRIPE_API_KEY=${STRIPE_API_KEY}
 
   # Tracing service
   bookstore-zipkin:
@@ -258,7 +259,7 @@ services:
       - "3000:80"
     environment:
       - REACT_APP_API_URL=http://bookstore-zuul-api-gateway-server:8765
-      - REACT_APP_TOGETHER_API_KEY=dummy_key_for_docker
+      - REACT_APP_TOGETHER_API_KEY=${REACT_APP_TOGETHER_API_KEY}
     networks:
       - bookstore-app-network
     depends_on:

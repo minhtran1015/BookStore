@@ -18,7 +18,17 @@ public class BookstorePaymentServiceApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BookstorePaymentServiceApplication.class, args);
-		Stripe.apiKey = System.getenv("STRIPE_API_KEY");
+		
+		String stripeApiKey = System.getenv("STRIPE_API_KEY");
+		if (stripeApiKey == null || stripeApiKey.isEmpty() || stripeApiKey.contains("your_stripe")) {
+			System.err.println("WARNING: STRIPE_API_KEY is not properly configured. Payment functionality will not work.");
+			System.err.println("Please set a valid Stripe test API key in the .env file.");
+			System.err.println("Get a test key from: https://dashboard.stripe.com/test/apikeys");
+			Stripe.apiKey = null; // Don't set invalid key
+		} else {
+			Stripe.apiKey = stripeApiKey;
+			System.out.println("Stripe API key configured successfully.");
+		}
 	}
 
 }

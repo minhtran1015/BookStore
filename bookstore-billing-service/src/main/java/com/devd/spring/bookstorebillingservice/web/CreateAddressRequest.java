@@ -31,7 +31,7 @@ public class CreateAddressRequest {
     @NonNull
     private String postalCode;
 
-    @Pattern(regexp = "[A-Z]{2}", message = "2-letter ISO country code required")
+    @Pattern(regexp = "[A-Za-z]{2}", message = "2-letter ISO country code required")
     @NonNull
     private String country;
 

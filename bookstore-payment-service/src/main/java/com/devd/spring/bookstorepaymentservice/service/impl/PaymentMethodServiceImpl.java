@@ -6,6 +6,7 @@ import com.devd.spring.bookstorepaymentservice.repository.dao.UserPaymentCustome
 import com.devd.spring.bookstorepaymentservice.service.PaymentMethodService;
 import com.devd.spring.bookstorepaymentservice.web.CreatePaymentMethodRequest;
 import com.devd.spring.bookstorepaymentservice.web.GetPaymentMethodResponse;
+import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.PaymentMethod;
@@ -211,6 +212,11 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
     }
 
     private String createCustomerAtStripe() {
+        // Check if Stripe API key is configured
+        if (Stripe.apiKey == null || Stripe.apiKey.isEmpty() || Stripe.apiKey.contains("your_stripe")) {
+            throw new RunTimeExceptionPlaceHolder("Stripe API key is not configured. Please set STRIPE_API_KEY in your environment variables.");
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userIdFromToken = getUserIdFromToken(authentication);
         Map<String, Object> params = new HashMap<>();
@@ -222,7 +228,8 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
         try {
             return Customer.create(params).getId();
         } catch (StripeException e) {
-            throw new RunTimeExceptionPlaceHolder("Error while setting up payment customer.");
+            log.error("Stripe API error while creating customer: {}", e.getMessage());
+            throw new RunTimeExceptionPlaceHolder("Error while setting up payment customer: " + e.getMessage());
         }
 
     }
