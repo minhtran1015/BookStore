@@ -34,11 +34,21 @@ const HomeScreen = () => {
 
   return (
     <>
-        <div className="category-links-container">
+        <div className="category-links-container" style={{
+          backgroundImage: `url(${process.env.PUBLIC_URL}/background.png)`
+        }}>
       <div className="category-links">
         <button 
           className={`category-button ${keyword === '' ? 'active' : ''}`} 
-          onClick={() => setKeyword('')}
+          onClick={() => {
+            setKeyword('');
+            setTimeout(() => {
+              const booksSection = document.querySelector('.home-header');
+              if (booksSection) {
+                booksSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }, 100);
+          }}
         >
           <i className="fas fa-book"></i>
           <span>Tất cả sách</span>
@@ -46,7 +56,15 @@ const HomeScreen = () => {
         
         <button 
           className={`category-button ${keyword === 'fiction' ? 'active' : ''}`} 
-          onClick={() => setKeyword('fiction')}
+          onClick={() => {
+            setKeyword('fiction');
+            setTimeout(() => {
+              const booksSection = document.querySelector('.home-header');
+              if (booksSection) {
+                booksSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }, 100);
+          }}
         >
           <i className="fas fa-feather-alt"></i>
           <span>Tiểu thuyết</span>
@@ -54,7 +72,15 @@ const HomeScreen = () => {
         
         <button 
           className={`category-button ${keyword === 'science' ? 'active' : ''}`} 
-          onClick={() => setKeyword('science')}
+          onClick={() => {
+            setKeyword('science');
+            setTimeout(() => {
+              const booksSection = document.querySelector('.home-header');
+              if (booksSection) {
+                booksSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }, 100);
+          }}
         >
           <i className="fas fa-atom"></i>
           <span>Khoa học</span>
@@ -62,7 +88,15 @@ const HomeScreen = () => {
         
         <button 
           className={`category-button ${keyword === 'business' ? 'active' : ''}`} 
-          onClick={() => setKeyword('business')}
+          onClick={() => {
+            setKeyword('business');
+            setTimeout(() => {
+              const booksSection = document.querySelector('.home-header');
+              if (booksSection) {
+                booksSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }, 100);
+          }}
         >
           <i className="fas fa-chart-line"></i>
           <span>Kinh doanh</span>
@@ -70,7 +104,15 @@ const HomeScreen = () => {
         
         <button 
           className={`category-button ${keyword === 'biography' ? 'active' : ''}`} 
-          onClick={() => setKeyword('biography')}
+          onClick={() => {
+            setKeyword('biography');
+            setTimeout(() => {
+              const booksSection = document.querySelector('.home-header');
+              if (booksSection) {
+                booksSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }, 100);
+          }}
         >
           <i className="fas fa-user-tie"></i>
           <span>Tiểu sử</span>
@@ -78,18 +120,22 @@ const HomeScreen = () => {
         
         <button 
           className={`category-button ${keyword === 'children' ? 'active' : ''}`} 
-          onClick={() => setKeyword('children')}
+          onClick={() => {
+            setKeyword('children');
+            setTimeout(() => {
+              const booksSection = document.querySelector('.home-header');
+              if (booksSection) {
+                booksSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }, 100);
+          }}
         >
           <i className="fas fa-child"></i>
           <span>Thiếu nhi</span>
         </button>
       </div>
-    </div>
-  
 
-      <div className="home-banner">
-        <img src="/8620842.jpg" alt="BookStore Banner" />
-      </div>
+    </div>
     <Container className="home-screen">
       <div className="home-header">
         <h1>Khám Phá Sách Mới</h1>

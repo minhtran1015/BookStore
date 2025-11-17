@@ -4,6 +4,8 @@ import App from './App';
 import store from './store';
 import './bootstrap.min.css';
 import './index.css';
+import './dropdown-fix.css';
+import './input-styles.css';
 import reportWebVitals from './reportWebVitals';
 import { Provider } from 'react-redux';
 

@@ -1,0 +1,429 @@
+/* Enhanced Input Styles - Modern and Beautiful Form Controls */
+
+/* Base styles for all form controls */
+.form-control,
+input,
+textarea,
+select {
+  padding: 0.7rem 1rem !important;
+  min-height: 48px !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+  line-height: 1.5 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* Focus states with beautiful blue accent */
+.form-control:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  background-color: #ffffff !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Hover states */
+.form-control:hover,
+input:hover,
+textarea:hover,
+select:hover {
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Placeholder styling */
+.form-control::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8 !important;
+  font-weight: 400 !important;
+  opacity: 1 !important;
+}
+
+/* Disabled states */
+.form-control:disabled,
+input:disabled,
+textarea:disabled,
+select:disabled {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #94a3b8 !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+/* Invalid/Error states */
+.form-control.is-invalid,
+input.is-invalid,
+textarea.is-invalid,
+select.is-invalid {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+/* Valid states */
+.form-control.is-valid,
+input.is-valid,
+textarea.is-valid,
+select.is-valid {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+}
+
+/* Select dropdown styling */
+select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+  background-position: right 0.75rem center !important;
+  background-repeat: no-repeat !important;
+  background-size: 1.5rem 1.5rem !important;
+  padding-right: 3rem !important;
+}
+
+/* File input styling */
+input[type="file"] {
+  padding: 0.5rem !important;
+  background-color: #f8fafc !important;
+  border: 2px dashed #cbd5e1 !important;
+  border-radius: 12px !important;
+}
+
+input[type="file"]:hover {
+  border-color: #3b82f6 !important;
+  background-color: #f0f9ff !important;
+}
+
+/* Textarea specific styling */
+textarea {
+  min-height: 120px !important;
+  resize: vertical !important;
+}
+
+/* Input group styling */
+.input-group {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+.input-group .form-control {
+  border-radius: 0 !important;
+  border-right: none !important;
+  box-shadow: none !important;
+}
+
+.input-group .form-control:first-child {
+  border-top-left-radius: 12px !important;
+  border-bottom-left-radius: 12px !important;
+}
+
+.input-group .form-control:last-child {
+  border-top-right-radius: 12px !important;
+  border-bottom-right-radius: 12px !important;
+  border-right: 2px solid #e2e8f0 !important;
+}
+
+.input-group-text {
+  background-color: #f8fafc !important;
+  border: 2px solid #e2e8f0 !important;
+  border-right: none !important;
+  color: #64748b !important;
+  font-weight: 500 !important;
+  padding: 0.7rem 1rem !important;
+  min-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.input-group-prepend .input-group-text {
+  border-top-left-radius: 12px !important;
+  border-bottom-left-radius: 12px !important;
+}
+
+.input-group-append .input-group-text {
+  border-top-right-radius: 12px !important;
+  border-bottom-right-radius: 12px !important;
+  border-left: none !important;
+  border-right: 2px solid #e2e8f0 !important;
+}
+
+/* Focus within input group */
+.input-group:focus-within {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+.input-group:focus-within .input-group-text {
+  border-color: #3b82f6 !important;
+  background-color: #f0f9ff !important;
+  color: #3b82f6 !important;
+}
+
+.input-group:focus-within .form-control {
+  border-color: #3b82f6 !important;
+}
+
+/* Search input specific styling */
+.search-input {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-right: none !important;
+}
+
+/* Login screen input styling */
+.login-input {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.login-input:focus {
+  background-color: #ffffff !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .form-control,
+  input,
+  textarea,
+  select {
+    font-size: 1rem !important;
+    min-height: 44px !important;
+    padding: 0.6rem 0.8rem !important;
+  }
+  
+  select {
+    padding-right: 2.5rem !important;
+  }
+  
+  .input-group-text {
+    min-height: 44px !important;
+    padding: 0.6rem 0.8rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-control,
+  input,
+  textarea,
+  select {
+    border-radius: 10px !important;
+    font-size: 0.95rem !important;
+  }
+  
+  .input-group {
+    border-radius: 10px !important;
+  }
+  
+  .input-group .form-control:first-child {
+    border-top-left-radius: 10px !important;
+    border-bottom-left-radius: 10px !important;
+  }
+  
+  .input-group .form-control:last-child {
+    border-top-right-radius: 10px !important;
+    border-bottom-right-radius: 10px !important;
+  }
+  
+  .input-group-prepend .input-group-text {
+    border-top-left-radius: 10px !important;
+    border-bottom-left-radius: 10px !important;
+  }
+  
+  .input-group-append .input-group-text {
+    border-top-right-radius: 10px !important;
+    border-bottom-right-radius: 10px !important;
+  }
+}
+
+/* Animation for smooth interactions */
+@keyframes inputFocus {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-1px);
+  }
+}
+
+/* Custom styling for specific input types */
+input[type="email"],
+input[type="password"],
+input[type="text"],
+input[type="number"] {
+  font-variant-numeric: lining-nums !important;
+}
+
+/* Modern Checkbox Styling */
+.form-check {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 16px 20px !important;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%) !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  margin: 16px 0 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+.form-check:hover {
+  border-color: #3b82f6 !important;
+  background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-1px) !important;
+}
+
+.form-check-input {
+  position: relative !important;
+  width: 24px !important;
+  height: 24px !important;
+  margin: 0 !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-color: #ffffff !important;
+  border: 2px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+.form-check-input:hover {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+.form-check-input:focus {
+  outline: none !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2) !important;
+}
+
+.form-check-input:checked {
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z'/%3e%3c/svg%3e") !important;
+  background-size: 16px 16px !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+}
+
+.form-check-input:checked:hover {
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+}
+
+.form-check-label {
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+  color: #1e293b !important;
+  cursor: pointer !important;
+  margin: 0 !important;
+  line-height: 1.5 !important;
+  user-select: none !important;
+}
+
+.form-check:hover .form-check-label {
+  color: #3b82f6 !important;
+}
+
+.form-check-input:checked ~ .form-check-label {
+  color: #1e293b !important;
+  font-weight: 600 !important;
+}
+
+/* Disabled checkbox state */
+.form-check-input:disabled {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+.form-check-input:disabled ~ .form-check-label {
+  color: #94a3b8 !important;
+  cursor: not-allowed !important;
+}
+
+.form-check:has(.form-check-input:disabled) {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  cursor: not-allowed !important;
+}
+
+.form-check:has(.form-check-input:disabled):hover {
+  transform: none !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Animation for checkbox check */
+@keyframes checkboxCheck {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.form-check-input:checked {
+  animation: checkboxCheck 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Responsive adjustments for checkbox */
+@media (max-width: 768px) {
+  .form-check {
+    padding: 14px 16px !important;
+    gap: 10px !important;
+  }
+  
+  .form-check-input {
+    width: 22px !important;
+    height: 22px !important;
+  }
+  
+  .form-check-label {
+    font-size: 0.95rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-check {
+    padding: 12px 14px !important;
+    border-radius: 10px !important;
+  }
+  
+  .form-check-input {
+    width: 20px !important;
+    height: 20px !important;
+  }
+}
+
+/* Enhanced focus ring for accessibility */
+.form-control:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(59, 130, 246, 0.5) !important;
+  outline-offset: 2px !important;
+}
