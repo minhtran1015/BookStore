@@ -1,0 +1,44 @@
+spring:
+  profiles:
+    active: test
+  main:
+    allow-bean-definition-overriding: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    database: h2
+    open-in-view: true
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        [show_sql]: false
+        [use_sql_comments]: false
+        [format_sql]: false
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:bookstore_db;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+  flyway:
+    table: account_service_flyway_history
+    baseline-on-migrate: true
+    baseline-version: 0.9
+
+eureka:
+  client:
+    enabled: false
+
+logging:
+  level:
+    [com.devd.spring.*]: INFO
+    [org.springframework]: WARN
+
+security:
+  jwt:
+    key-store: classpath:JWTKeystore.p12
+    key-store-password: devdcorespass
+    key-pair-alias: jwt-key
+    key-pair-password: devdcorespass
+    public-key: classpath:jwt-signing-public-key.txt

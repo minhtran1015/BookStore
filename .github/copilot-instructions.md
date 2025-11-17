@@ -181,9 +181,10 @@ Set via `SPRING_PROFILES_ACTIVE` env var (see `application.yml` in each service)
 - `spring-cloud-openfeign`: Inter-service HTTP calls
 
 ### Docker Build Context
-- Each service has `Dockerfile` in root with: `FROM openjdk:8-jdk-alpine`
+- Each service has `Dockerfile` in root with: `FROM eclipse-temurin:8-jre` (optimal choice - JRE only, no JDK tools needed for production)
 - Expects JAR at `target/<service>-0.0.1-SNAPSHOT.jar` (built by Maven)
 - `dockerize` binary waits for MySQL availability before starting service
+- **Note:** Use `eclipse-temurin:8-jre` instead of `openjdk:8-jdk-alpine` (deprecated) or `eclipse-temurin:8-jdk` (unnecessarily large for production)
 
 ### React Frontend Integration
 - Located in `bookstore-frontend-react-app/`
