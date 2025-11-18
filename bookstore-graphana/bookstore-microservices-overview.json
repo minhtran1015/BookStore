@@ -1,0 +1,143 @@
+{
+  "id": null,
+  "title": "BookStore Microservices Overview",
+    "tags": ["bookstore", "microservices", "overview"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Service Health Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=~\"bookstore.*\"}",
+            "legendFormat": "{{instance}} - {{job}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "green", "value": 1}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Request Rate (req/sec)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_server_requests_seconds_count{job=~\"bookstore.*\"}[5m])",
+            "legendFormat": "{{job}} - {{uri}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "yAxes": [
+          {"label": "Requests/sec", "show": true},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Response Time (95th percentile)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{job=~\"bookstore.*\"}[5m]))",
+            "legendFormat": "{{job}} - {{uri}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "yAxes": [
+          {"label": "Seconds", "show": true},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Error Rate (%)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_server_requests_seconds_count{job=~\"bookstore.*\", status=~\"4..|5..\"}[5m]) / rate(http_server_requests_seconds_count{job=~\"bookstore.*\"}[5m]) * 100",
+            "legendFormat": "{{job}} Error Rate"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "yAxes": [
+          {"label": "Percentage", "show": true},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 5,
+        "title": "JVM Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "jvm_memory_used_bytes{job=~\"bookstore.*\", area=\"heap\"} / 1024 / 1024",
+            "legendFormat": "{{job}} - {{instance}} Heap Used (MB)"
+          },
+          {
+            "expr": "jvm_memory_max_bytes{job=~\"bookstore.*\", area=\"heap\"} / 1024 / 1024",
+            "legendFormat": "{{job}} - {{instance}} Heap Max (MB)"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16},
+        "yAxes": [
+          {"label": "Megabytes", "show": true},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Database Connection Pool",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "hikaricp_connections_active{job=~\"bookstore.*\"}",
+            "legendFormat": "{{job}} - Active Connections"
+          },
+          {
+            "expr": "hikaricp_connections_idle{job=~\"bookstore.*\"}",
+            "legendFormat": "{{job}} - Idle Connections"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+        "yAxes": [
+          {"label": "Connections", "show": true},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 7,
+        "title": "CPU Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "process_cpu_usage{job=~\"bookstore.*\"} * 100",
+            "legendFormat": "{{job}} - {{instance}} CPU %"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+        "yAxes": [
+          {"label": "Percentage", "show": true},
+          {"show": false}
+        ]
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "10s"
+  }

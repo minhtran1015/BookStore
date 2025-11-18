@@ -1,0 +1,81 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: bookstore-appset
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: bookstore-appset
+    app.kubernetes.io/part-of: bookstore
+spec:
+  generators:
+  - list:
+      elements:
+      - environment: development
+        namespace: bookstore
+        syncPolicy: automated
+        replicas: "1"
+        resources: "small"
+      - environment: staging
+        namespace: bookstore-staging  
+        syncPolicy: automated
+        replicas: "2"
+        resources: "medium"
+      - environment: production
+        namespace: bookstore-production
+        syncPolicy: manual
+        replicas: "3"
+        resources: "large"
+        
+  template:
+    metadata:
+      name: 'bookstore-{{environment}}'
+      namespace: argocd
+      labels:
+        app.kubernetes.io/name: 'bookstore-{{environment}}'
+        app.kubernetes.io/part-of: bookstore
+        environment: '{{environment}}'
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"
+    spec:
+      project: bookstore-project
+      
+      source:
+        repoURL: 'https://github.com/minhtran1015/BookStore.git'
+        path: 'k8s'
+        targetRevision: master
+        
+      destination:
+        server: 'https://kubernetes.default.svc'
+        namespace: '{{namespace}}'
+        
+      syncPolicy: |
+        {{#if (eq syncPolicy "automated")}}
+        automated:
+          prune: true
+          selfHeal: true
+          allowEmpty: false
+        {{/if}}
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground
+          - PruneLast=true
+          - Replace=false
+          - Validate=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+            
+      ignoreDifferences:
+        - group: apps
+          kind: Deployment
+          jsonPointers:
+            - /spec/replicas
+        - group: ""
+          kind: Service
+          jsonPointers:
+            - /spec/clusterIP
+            
+      revisionHistoryLimit: 10

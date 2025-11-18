@@ -1,0 +1,85 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: bookstore-project
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: bookstore-project
+    app.kubernetes.io/part-of: bookstore
+spec:
+  description: "BookStore Microservices Application Project"
+  
+  # Source repositories
+  sourceRepos:
+    - 'https://github.com/minhtran1015/BookStore.git'
+    - 'https://github.com/minhtran1015/BookStore'
+    - '*'
+    
+  # Allowed destinations
+  destinations:
+    - namespace: 'bookstore'
+      server: 'https://kubernetes.default.svc'
+    - namespace: 'bookstore-*'
+      server: 'https://kubernetes.default.svc'
+    - namespace: 'argocd'
+      server: 'https://kubernetes.default.svc'
+      
+  # Cluster resource whitelist
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+    - group: 'rbac.authorization.k8s.io'
+      kind: ClusterRole
+    - group: 'rbac.authorization.k8s.io'
+      kind: ClusterRoleBinding
+    - group: 'apiextensions.k8s.io'
+      kind: CustomResourceDefinition
+    - group: 'networking.k8s.io'
+      kind: Ingress
+      
+  # Namespace resource whitelist
+  namespaceResourceWhitelist:
+    - group: ''
+      kind: Service
+    - group: ''
+      kind: ConfigMap
+    - group: ''
+      kind: Secret
+    - group: ''
+      kind: PersistentVolumeClaim
+    - group: 'apps'
+      kind: Deployment
+    - group: 'apps'
+      kind: StatefulSet
+    - group: 'apps'
+      kind: DaemonSet
+    - group: 'extensions'
+      kind: Ingress
+    - group: 'networking.k8s.io'
+      kind: Ingress
+    - group: 'networking.k8s.io'
+      kind: NetworkPolicy
+    - group: 'policy'
+      kind: PodDisruptionBudget
+    - group: 'autoscaling'
+      kind: HorizontalPodAutoscaler
+      
+  # RBAC roles
+  roles:
+    - name: bookstore-admin
+      description: "Full access to BookStore application"
+      policies:
+        - p, proj:bookstore-project:bookstore-admin, applications, *, bookstore-project/*, allow
+        - p, proj:bookstore-project:bookstore-admin, repositories, *, *, allow
+        - p, proj:bookstore-project:bookstore-admin, certificates, *, *, allow
+      groups:
+        - bookstore:admin
+        
+    - name: bookstore-developer
+      description: "Developer access to BookStore application"
+      policies:
+        - p, proj:bookstore-project:bookstore-developer, applications, get, bookstore-project/*, allow
+        - p, proj:bookstore-project:bookstore-developer, applications, sync, bookstore-project/*, allow
+        - p, proj:bookstore-project:bookstore-developer, repositories, get, *, allow
+      groups:
+        - bookstore:developer

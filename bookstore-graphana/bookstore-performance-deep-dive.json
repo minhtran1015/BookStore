@@ -1,0 +1,184 @@
+{
+  "id": null,
+  "title": "BookStore Performance Deep Dive",
+    "tags": ["bookstore", "performance", "detailed"],
+    "style": "dark",
+    "timezone": "browser",
+    "templating": {
+      "list": [
+        {
+          "name": "service",
+          "type": "query",
+          "query": "label_values(up{job=~\"bookstore.*\"}, job)",
+          "refresh": 1,
+          "includeAll": true,
+          "multi": true
+        }
+      ]
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Service Uptime",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=~\"$service\"}",
+            "legendFormat": "{{instance}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "none",
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "green", "value": 1}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Total Requests",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(increase(http_server_requests_seconds_count{job=~\"$service\"}[1h]))",
+            "legendFormat": "Requests/hour"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {"unit": "short"},
+          "overrides": []
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Average Response Time",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "avg(rate(http_server_requests_seconds_sum{job=~\"$service\"}[5m])) / avg(rate(http_server_requests_seconds_count{job=~\"$service\"}[5m]))",
+            "legendFormat": "Avg Response Time"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {"unit": "s"},
+          "overrides": []
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0}
+      },
+      {
+        "id": 4,
+        "title": "Error Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(rate(http_server_requests_seconds_count{job=~\"$service\", status=~\"4..|5..\"}[5m])) / sum(rate(http_server_requests_seconds_count{job=~\"$service\"}[5m])) * 100",
+            "legendFormat": "Error Rate %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 0},
+                {"color": "yellow", "value": 1},
+                {"color": "red", "value": 5}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0}
+      },
+      {
+        "id": 5,
+        "title": "Request Rate by Endpoint",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum by (uri) (rate(http_server_requests_seconds_count{job=~\"$service\"}[5m]))",
+            "legendFormat": "{{uri}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+        "legend": {"show": true, "values": true, "current": true}
+      },
+      {
+        "id": 6,
+        "title": "Response Time Distribution",
+        "type": "heatmap",
+        "targets": [
+          {
+            "expr": "sum(rate(http_server_requests_seconds_bucket{job=~\"$service\"}[5m])) by (le)",
+            "legendFormat": "{{le}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4}
+      },
+      {
+        "id": 7,
+        "title": "JVM Memory Details",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "jvm_memory_used_bytes{job=~\"$service\", area=\"heap\"} / 1024 / 1024",
+            "legendFormat": "{{job}} Heap Used (MB)"
+          },
+          {
+            "expr": "jvm_memory_committed_bytes{job=~\"$service\", area=\"heap\"} / 1024 / 1024",
+            "legendFormat": "{{job}} Heap Committed (MB)"
+          },
+          {
+            "expr": "jvm_memory_max_bytes{job=~\"$service\", area=\"heap\"} / 1024 / 1024",
+            "legendFormat": "{{job}} Heap Max (MB)"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 12}
+      },
+      {
+        "id": 8,
+        "title": "Garbage Collection",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(jvm_gc_pause_seconds_count{job=~\"$service\"}[5m])",
+            "legendFormat": "{{job}} - {{gc}} Collections/sec"
+          },
+          {
+            "expr": "rate(jvm_gc_pause_seconds_sum{job=~\"$service\"}[5m])",
+            "legendFormat": "{{job}} - {{gc}} Time/sec"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20}
+      },
+      {
+        "id": 9,
+        "title": "Thread Pool Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "executor_active_threads{job=~\"$service\"}",
+            "legendFormat": "{{job}} Active Threads"
+          },
+          {
+            "expr": "executor_pool_size_threads{job=~\"$service\"}",
+            "legendFormat": "{{job}} Pool Size"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "5s"
+  }

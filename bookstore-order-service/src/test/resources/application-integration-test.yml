@@ -1,0 +1,53 @@
+spring:
+  datasource:
+    # These will be overridden by Testcontainers dynamic properties
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+  
+  # Disable external services for integration tests
+  cloud:
+    discovery:
+      enabled: false
+  
+  sleuth:
+    zipkin:
+      enabled: false
+    sampler:
+      probability: 0.0
+
+# Disable Eureka for integration tests  
+eureka:
+  client:
+    enabled: false
+    
+# Server configuration
+server:
+  port: 0  # Random port for integration tests
+
+# Logging configuration
+logging:
+  level:
+    com.devd.spring: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.testcontainers: INFO
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# Test-specific security configuration
+security:
+  oauth2:
+    resource:
+      jwt:
+        key-value: "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuXxn2ggg+GhXla4qwpq6\n8K+33FS9UKMb6yMl29KFaDbGHEW3le7b7lJRwhBOyTGS5J8tJ3Hj3tJRLd3aJJu3\nTSCRdeInd8cgrnE3wlxsCP5RPO3SLqCMOOJ6R1EBIYOZgBL4G5VjJNTGZA7vI9Y4\nzJCG1K9KVopMJ9nCVPKkCWWKTcOTE7tCyZKhQJN5J9rROTp4d2N6geNEJUOiP3P4\nFz7MOHfE93sNwE3M5Er3LETNbjz/VLzPCWxveKcPvG1zO2uQYfg/1DG8ZGRNrAOL\nyPQkbT3TtUexqN3eLnY9coP9Ie3SwpB8G5VjJNTGZA7vI9Y4zJCG1K9KVopMJ9nC\nVPKkCWWKTcOTE7tCyZKhQJN5J9rROTp4d2N6geNEJUOiP3P4Fz7MOHfE93sNwE3M\n5Er3LETNbjz/VLzPCWxveKcPvG1zO2uQYfg/1DG8ZGRNrAOLyPQkbT3TtUexqN3e\nLnY9coP9Ie3SwpB8ZGRNrAOLyPQkbT3TtUexqN3eLnY9coP9Ie3SwpB8\n-----END PUBLIC KEY-----"

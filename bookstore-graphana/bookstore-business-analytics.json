@@ -1,0 +1,151 @@
+{
+  "id": null,
+  "title": "BookStore Business Analytics",
+    "tags": ["bookstore", "business", "analytics"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "User Registrations (Last 24h)",
+        "type": "stat",
+        "targets": [
+          {
+            "rawSql": "SELECT COUNT(*) as count FROM user WHERE created_date >= NOW() - INTERVAL 1 DAY",
+            "datasource": "MySQL"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {"mode": "palette-classic"}
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Orders Created (Last 24h)",
+        "type": "stat",
+        "targets": [
+          {
+            "rawSql": "SELECT COUNT(*) as count FROM orders WHERE created_date >= NOW() - INTERVAL 1 DAY",
+            "datasource": "MySQL"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {"mode": "palette-classic"}
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Revenue (Last 24h)",
+        "type": "stat",
+        "targets": [
+          {
+            "rawSql": "SELECT COALESCE(SUM(total_price), 0) as revenue FROM orders WHERE created_date >= NOW() - INTERVAL 1 DAY AND order_status = 'CONFIRMED'",
+            "datasource": "MySQL"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD",
+            "color": {"mode": "palette-classic"}
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0}
+      },
+      {
+        "id": 4,
+        "title": "Active Users (Last 1h)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(increase(http_server_requests_seconds_count{job=\"bookstore-account-service\", uri!~\"/actuator.*\"}[1h]) > 0)"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {"mode": "palette-classic"}
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0}
+      },
+      {
+        "id": 5,
+        "title": "Daily Orders Trend",
+        "type": "graph",
+        "targets": [
+          {
+            "rawSql": "SELECT UNIX_TIMESTAMP(DATE(created_date)) * 1000 as time, COUNT(*) as orders FROM orders WHERE created_date >= NOW() - INTERVAL 30 DAY GROUP BY DATE(created_date) ORDER BY time",
+            "datasource": "MySQL"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+        "xAxis": {"mode": "time"},
+        "yAxes": [{"label": "Orders", "show": true}]
+      },
+      {
+        "id": 6,
+        "title": "Revenue Trend",
+        "type": "graph",
+        "targets": [
+          {
+            "rawSql": "SELECT UNIX_TIMESTAMP(DATE(created_date)) * 1000 as time, COALESCE(SUM(total_price), 0) as revenue FROM orders WHERE created_date >= NOW() - INTERVAL 30 DAY AND order_status = 'CONFIRMED' GROUP BY DATE(created_date) ORDER BY time",
+            "datasource": "MySQL"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+        "xAxis": {"mode": "time"},
+        "yAxes": [{"label": "Revenue ($)", "show": true}]
+      },
+      {
+        "id": 7,
+        "title": "Top Selling Books",
+        "type": "table",
+        "targets": [
+          {
+            "rawSql": "SELECT p.product_name, SUM(oi.quantity) as total_sold, SUM(oi.quantity * oi.price) as revenue FROM order_items oi JOIN product p ON oi.product_id = p.product_id JOIN orders o ON oi.order_id = o.order_id WHERE o.created_date >= NOW() - INTERVAL 7 DAY AND o.order_status = 'CONFIRMED' GROUP BY p.product_id, p.product_name ORDER BY total_sold DESC LIMIT 10",
+            "datasource": "MySQL"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12}
+      },
+      {
+        "id": 8,
+        "title": "Order Status Distribution",
+        "type": "piechart",
+        "targets": [
+          {
+            "rawSql": "SELECT order_status as metric, COUNT(*) as count FROM orders WHERE created_date >= NOW() - INTERVAL 7 DAY GROUP BY order_status",
+            "datasource": "MySQL"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12}
+      },
+      {
+        "id": 9,
+        "title": "User Registration Trend",
+        "type": "graph",
+        "targets": [
+          {
+            "rawSql": "SELECT UNIX_TIMESTAMP(DATE(created_date)) * 1000 as time, COUNT(*) as registrations FROM user WHERE created_date >= NOW() - INTERVAL 30 DAY GROUP BY DATE(created_date) ORDER BY time",
+            "datasource": "MySQL"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 20},
+        "xAxis": {"mode": "time"},
+        "yAxes": [{"label": "New Users", "show": true}]
+      }
+    ],
+    "time": {
+      "from": "now-7d",
+      "to": "now"
+    },
+    "refresh": "1m"
+  }

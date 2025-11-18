@@ -1,0 +1,44 @@
+spring:
+  profiles:
+    active: integration-test
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: false
+
+  h2:
+    console:
+      enabled: false
+
+# Disable service discovery for integration tests
+eureka:
+  client:
+    enabled: false
+
+# Disable consul discovery
+spring.cloud.consul.enabled: false
+spring.cloud.consul.discovery.enabled: false
+
+# Logging configuration
+logging:
+  level:
+    com.devd.spring.bookstorebillingservice: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org.testcontainers: INFO
+    
+server:
+  port: 0  # Random port for tests

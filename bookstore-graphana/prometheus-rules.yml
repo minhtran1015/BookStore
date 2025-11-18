@@ -1,0 +1,42 @@
+groups:
+  - name: bookstore.rules
+    rules:
+      - alert: BookStoreServiceDown
+        expr: up{job=~"bookstore.*"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: bookstore
+        annotations:
+          summary: "BookStore service {{ $labels.job }} is down"
+          description: "BookStore service {{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: HighErrorRate
+        expr: (sum(rate(http_server_requests_seconds_count{job=~"bookstore.*", status=~"4..|5.."}[5m])) by (job) / sum(rate(http_server_requests_seconds_count{job=~"bookstore.*"}[5m])) by (job)) * 100 > 5
+        for: 2m
+        labels:
+          severity: warning
+          team: bookstore
+        annotations:
+          summary: "High error rate on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} has an error rate above 5% for more than 2 minutes."
+
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=~"bookstore.*"}[5m])) by (le, job)) > 2
+        for: 3m
+        labels:
+          severity: warning
+          team: bookstore
+        annotations:
+          summary: "High response time on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} has 95th percentile response time above 2 seconds for more than 3 minutes."
+
+      - alert: HighMemoryUsage
+        expr: (jvm_memory_used_bytes{job=~"bookstore.*", area="heap"} / jvm_memory_max_bytes{job=~"bookstore.*", area="heap"}) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          team: bookstore
+        annotations:
+          summary: "High JVM memory usage on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} on {{ $labels.instance }} has heap memory usage above 85% for more than 5 minutes."

@@ -1,0 +1,150 @@
+apiVersion: 1
+
+groups:
+  - name: bookstore-alerts
+    folder: BookStore Alerts
+    interval: 30s
+    rules:
+      - uid: service-down-alert
+        title: BookStore Service Down
+        condition: A
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 600
+              to: 0
+            model:
+              expr: up{job=~"bookstore.*"} == 0
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+        noDataState: NoData
+        execErrState: Alerting
+        for: 1m
+        annotations:
+          description: "BookStore service {{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute."
+          summary: "BookStore service is down"
+        labels:
+          severity: critical
+          team: bookstore
+
+      - uid: high-error-rate-alert
+        title: High Error Rate
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              expr: sum(rate(http_server_requests_seconds_count{job=~"bookstore.*", status=~"4..|5.."}[5m])) by (job)
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              expr: sum(rate(http_server_requests_seconds_count{job=~"bookstore.*"}[5m])) by (job)
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: B
+          - refId: C
+            queryType: ""
+            model:
+              expr: (A / B) * 100 > 5
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+        noDataState: NoData
+        execErrState: Alerting
+        for: 2m
+        annotations:
+          description: "Service {{ $labels.job }} has an error rate above 5% for more than 2 minutes."
+          summary: "High error rate detected"
+        labels:
+          severity: warning
+          team: bookstore
+
+      - uid: high-response-time-alert
+        title: High Response Time
+        condition: A
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              expr: histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=~"bookstore.*"}[5m])) by (le, job)) > 2
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+        noDataState: NoData
+        execErrState: Alerting
+        for: 3m
+        annotations:
+          description: "Service {{ $labels.job }} has 95th percentile response time above 2 seconds for more than 3 minutes."
+          summary: "High response time detected"
+        labels:
+          severity: warning
+          team: bookstore
+
+      - uid: high-memory-usage-alert
+        title: High JVM Memory Usage
+        condition: A
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              expr: (jvm_memory_used_bytes{job=~"bookstore.*", area="heap"} / jvm_memory_max_bytes{job=~"bookstore.*", area="heap"}) * 100 > 85
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+        noDataState: NoData
+        execErrState: Alerting
+        for: 5m
+        annotations:
+          description: "Service {{ $labels.job }} on {{ $labels.instance }} has heap memory usage above 85% for more than 5 minutes."
+          summary: "High JVM memory usage"
+        labels:
+          severity: warning
+          team: bookstore
+
+contactPoints:
+  - uid: bookstore-contact-point
+    name: bookstore-team
+    type: email
+    settings:
+      addresses: admin@bookstore.com
+      message: |
+        {{ range .Alerts }}
+        Alert: {{ .Summary }}
+        Description: {{ .Description }}
+        Labels: {{ range .Labels.SortedPairs }}{{ .Name }}={{ .Value }} {{ end }}
+        {{ end }}
+
+notificationPolicies:
+  - receiver: bookstore-team
+    group_by: ['alertname', 'job']
+    group_wait: 10s
+    group_interval: 10s
+    repeat_interval: 1h
+    routes:
+      - receiver: bookstore-team
+        matchers:
+          - severity = critical
+        group_wait: 5s
+        repeat_interval: 30m
+      - receiver: bookstore-team  
+        matchers:
+          - severity = warning
+        group_wait: 10s
+        repeat_interval: 1h
