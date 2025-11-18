@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY || "your_gemini_api_key_here"; // Get from environment variable
+const GEMINI_API_KEY = "AIzaSyDy2rfcehMxGfFyDA7mmQAupcD-rKUjPvc"; // Thay bằng API key thực tế hoặc lấy từ biến môi trường
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 export const getChatResponse = async (messages, booksContext = []) => {

@@ -1,4 +1,4 @@
-FROM eclipse-temurin:8-jre
+FROM openjdk:8-jdk-alpine
 
 VOLUME /tmp
 

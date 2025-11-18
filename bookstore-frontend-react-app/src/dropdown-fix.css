@@ -1,0 +1,107 @@
+select, 
+.form-control select,
+select.form-control {
+  color: #1e293b !important;
+  background-color: white !important;
+  font-size: 0.9rem !important;
+  line-height: 1.4 !important;
+  min-height: 36px !important;
+  padding: 8px 40px 8px 16px !important;
+  
+  /* Custom dropdown arrow */
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+  background-position: right 12px center !important;
+  background-repeat: no-repeat !important;
+  background-size: 16px 16px !important;
+}
+
+/* Option elements styling */
+select option,
+.form-control option {
+  color: #1e293b !important;
+  background-color: white !important;
+  padding: 8px 12px !important;
+  font-size: 0.9rem !important;
+  line-height: 1.5 !important;
+  font-weight: 400 !important;
+}
+
+/* Ensure dropdown text is visible on focus */
+select:focus,
+.form-control:focus {
+  color: #1e293b !important;
+  background-color: #f8fafc !important;
+}
+
+/* Fix for Bootstrap dropdown menus */
+.dropdown-menu {
+  z-index: 1050 !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 8px !important;
+}
+
+.dropdown-item {
+  color: #1e293b !important;
+  padding: 8px 16px !important;
+  font-size: 0.9rem !important;
+  line-height: 1.5 !important;
+  white-space: nowrap !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  color: #1e293b !important;
+  background-color: #f1f5f9 !important;
+}
+
+/* Fix for React Bootstrap Form.Control */
+.form-select,
+.form-control.is-invalid,
+.form-control.is-valid {
+  color: #1e293b !important;
+  background-color: white !important;
+}
+
+/* Ensure text is visible in disabled state */
+select:disabled,
+.form-control:disabled {
+  color: #64748b !important;
+  background-color: #f1f5f9 !important;
+  opacity: 0.7 !important;
+}
+
+/* Mobile responsive fixes */
+@media (max-width: 768px) {
+  select,
+  .form-control select,
+  select.form-control {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    min-height: 48px !important;
+    padding: 14px 40px 14px 16px !important;
+  }
+  
+  .dropdown-menu {
+    min-width: 200px !important;
+    max-width: 90vw !important;
+  }
+  
+  .dropdown-item {
+    padding: 12px 16px !important;
+    font-size: 1rem !important;
+  }
+}
+
+/* Fix for select elements in modals */
+.modal select,
+.modal .form-control select,
+.modal select.form-control {
+  z-index: 1055 !important;
+}
+
+.modal .dropdown-menu {
+  z-index: 1060 !important;
+}

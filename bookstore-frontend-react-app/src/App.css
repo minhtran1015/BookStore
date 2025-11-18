@@ -1,35 +1,74 @@
 @import url('https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --primary-blue: #2563eb;
+  --primary-blue-dark: #1d4ed8;
+  --primary-blue-light: #3b82f6;
+  --secondary-blue: #1e40af;
+  --accent-blue: #60a5fa;
+  --light-blue: #dbeafe;
+  --very-light-blue: #eff6ff;
+  --gradient-primary: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  --gradient-secondary: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  --gradient-accent: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-light: #94a3b8;
+  --background-primary: #ffffff;
+  --background-secondary: #f8fafc;
+  --border-color: #e2e8f0;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
 
 body {
   margin: 0;
   padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  line-height: 1.6;
 }
 
 button {
-  border-radius: 5px !important;
+  border-radius: 8px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
 }
 
 a {
-  border-radius: 5px !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
 }
 
 p {
-  font-family: sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
+  color: var(--text-secondary);
 }
 
 .bookstore-brand {
   font-family: 'Kaushan Script', cursive;
   font-size: 2em !important;
   font-weight: 800;
-  clip-path: polygon(0 30%, 100% 11%, 100% 75%, 0 92%);
-
-  background: rgb(2, 0, 36);
-  background: linear-gradient(84deg, rgba(2, 0, 36, 1) 21%, rgba(0, 0, 179, 1) 63%, rgba(191, 0, 76, 1) 92%);
-  padding: 5px;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  padding: 8px 16px;
+  border-radius: 12px;
+  text-shadow: none;
 }
 
 .bookstore-brand:hover {
-  color: aquamarine !important;
+  background: var(--gradient-secondary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transform: scale(1.05);
 }
 
 .fp-container {
@@ -38,7 +77,8 @@ p {
   height: 100%;
   top: 0;
   left: 0;
-  background: #111c1fad;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(8px);
 }
 
 .fp-container .fp-loader {
@@ -52,29 +92,47 @@ p {
   display: flex;
   padding-left: 0;
   list-style: none;
-  border-radius: 0.25rem;
+  border-radius: 8px;
+  gap: 4px;
 }
 
-.page-item.active {
+.page-item.active .page-link {
   z-index: 3;
   color: #fff;
-  /* background-color: #d9230f; */
-  /* border-color: #d9230f; */
+  background: var(--gradient-primary);
+  border-color: var(--primary-blue);
+  box-shadow: var(--shadow-md);
 }
 
 .page-item:first-child .page-link {
   margin-left: 0;
-  border-top-left-radius: 0.25rem;
-  border-bottom-left-radius: 0.25rem;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.page-item:last-child .page-link {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
 }
 
 .page-link {
   position: relative;
   display: block;
-  padding: 0.5rem 0.75rem;
-  margin-left: -1px;
+  padding: 0.75rem 1rem;
+  margin-left: 0;
   line-height: 1.25;
-  color: #d9230f;
-  background-color: #fff;
-  border: 1px solid #eee;
+  color: var(--primary-blue);
+  background-color: var(--background-primary);
+  border: 1px solid var(--border-color);
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.page-link:hover {
+  color: #fff;
+  background: var(--gradient-accent);
+  border-color: var(--accent-blue);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }

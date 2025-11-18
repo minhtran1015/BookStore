@@ -39,83 +39,79 @@ const Header = () => {
 
   return (
     <header>
-        <Navbar
-          className='navbar navbar-expand-lg bookstore-navbar'
-          collapseOnSelect
-          fixed="top"
-        >
-        <Container>
-          <Link to='/' className="d-flex align-items-center text-decoration-none">
-            <Navbar.Brand className='bookstore-brand'>
-              {/* <Image 
-                src="/favicon.ico" 
-                alt="BookStore" 
-                className="navbar-logo mr-2" 
-              />  */}
-              BookStore
-            </Navbar.Brand>
-            
-          </Link>
-          <Navbar.Toggle aria-controls='basic-navbar-nav' />
-          <Navbar.Collapse id='basic-navbar-nav'>
-            <Nav className='navbar-nav ml-auto'>
-              <Link to='/cart' className='nav-link'>
-                <i 
-                  className='fas fa-shopping-cart nav-icon'
-                  data-count={userLogin.cartItems?.length || 0}
-                ></i> 
-                <span className="nav-text">Giỏ hàng</span>
-              </Link>
-              {userInfo ? (
-                <NavDropdown 
-                  title={
-                    <div className="d-inline-flex align-items-center">
-                      <i className="fas fa-user-circle nav-icon"></i>
-                      <span className="nav-text">{userInfo.userName}</span>
-                    </div>
-                  } 
-                  id='username'
-                  className="user-dropdown"
-                >
-                  <Link to='/userProfile' className='dropdown-item'>
-                    <i className="fas fa-id-card dropdown-icon"></i> Hồ sơ
-                  </Link>
-                  <NavDropdown.Item onClick={logoutHandler}>
-                    <i className="fas fa-sign-out-alt dropdown-icon"></i> Đăng xuất
-                  </NavDropdown.Item>
-                </NavDropdown>
-              ) : (
-                <Link to='/login' className='nav-link'>
-                  <i className='fas fa-sign-in-alt nav-icon'></i> 
-                  <span className="nav-text">Đăng nhập</span>
-                </Link>
-              )}
-              {userInfo && isAdmin() && (
-                <NavDropdown 
-                  title={
-                    <div className="d-inline-flex align-items-center">
-                      <i className="fas fa-cog nav-icon"></i>
-                      <span className="nav-text">Quản trị</span>
-                    </div>
-                  } 
-                  id='adminmenu'
-                  className="admin-dropdown"
-                >
-                  <Link to='/admin/userlist' className='dropdown-item'>
-                    <i className="fas fa-users dropdown-icon"></i> Người dùng
-                  </Link>
-                  <Link to='/admin/productlist' className='dropdown-item'>
-                    <i className="fas fa-book dropdown-icon"></i> Sản phẩm
-                  </Link>
-                  <Link to='/admin/orderlist' className='dropdown-item'>
-                    <i className="fas fa-clipboard-list dropdown-icon"></i> Đơn hàng
-                  </Link>
-                </NavDropdown>
-              )}
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+        <Navbar expand="lg" fixed="top" className="bookstore-navbar bg-light shadow-sm" style={{ paddingLeft: '10rem', paddingRight: '10rem' }}
+>
+  <Container fluid>
+    {/* Logo bên trái */}
+    <Navbar.Brand as={Link} to="/" className="fw-bold" style={{ color: '#1e3a8a' }}>
+      BookStore
+    </Navbar.Brand>
+    {/* Nút toggle cho màn hình nhỏ */}
+    <Navbar.Toggle aria-controls="navbar-nav" />
+
+    {/* Các thẻ nav bên phải */}
+    <Navbar.Collapse style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }} id="navbar-nav">
+      <Nav className="ms-auto align-items-center">
+        {/* Giỏ hàng */}
+        <Nav.Link as={Link} to="/cart" className="d-flex align-items-center">
+          <i className="fas fa-shopping-cart me-1"></i>
+          <span className="fw-bold"> Giỏ hàng</span>
+        </Nav.Link>
+
+        {/* Người dùng đã đăng nhập */}
+        {userInfo ? (
+          <NavDropdown
+            title={
+              <span className="d-flex align-items-center">
+                <i className="fas fa-user-circle me-1"></i>
+                <span className="fw-bold"> {userInfo.userName}</span>
+              </span>
+            }
+            id="user-dropdown"
+            align="end"
+          >
+            <NavDropdown.Item as={Link} to="/userProfile">
+              <i className="fas fa-id-card me-2"></i> Hồ sơ
+            </NavDropdown.Item>
+            <NavDropdown.Item onClick={logoutHandler}>
+              <i className="fas fa-sign-out-alt me-2"></i> Đăng xuất
+            </NavDropdown.Item>
+          </NavDropdown>
+        ) : (
+          <Nav.Link as={Link} to="/login" className="d-flex align-items-center">
+            <i className="fas fa-sign-in-alt me-1"></i>
+            <span className="fw-bold"> Đăng nhập</span>
+          </Nav.Link>
+        )}
+
+        {/* Quản trị viên */}
+        {userInfo && isAdmin() && (
+          <NavDropdown
+            title={
+              <span className="d-flex align-items-center">
+                <i className="fas fa-cog me-1"></i> Quản trị
+              </span>
+            }
+            id="admin-dropdown"
+            align="end"
+          >
+            <NavDropdown.Item as={Link} to="/admin/userlist">
+              <i className="fas fa-users me-2"></i> Người dùng
+            </NavDropdown.Item>
+            <NavDropdown.Item as={Link} to="/admin/productlist">
+              <i className="fas fa-book me-2"></i> Sản phẩm
+            </NavDropdown.Item>
+            <NavDropdown.Item as={Link} to="/admin/orderlist">
+              <i className="fas fa-clipboard-list me-2"></i> Đơn hàng
+            </NavDropdown.Item>
+          </NavDropdown>
+        )}
+      </Nav>
+    </Navbar.Collapse>
+  </Container>
+</Navbar>
+
+
       <div className="navbar-spacer"></div>
     </header>
   );
