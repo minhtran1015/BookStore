@@ -5,6 +5,11 @@ metadata:
   namespace: bookstore
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
   selector:
     matchLabels:
       app: bookstore-payment-service
@@ -25,6 +30,22 @@ spec:
             cpu: "300m"
         ports:
         - containerPort: 8001
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8001
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
         env:
         - name: SERVER_PORT
           value: "8001"
