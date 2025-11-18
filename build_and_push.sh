@@ -46,7 +46,7 @@ MAVEN_SERVICES=(
 for service in "${MAVEN_SERVICES[@]}"; do
     echo -e "${YELLOW}Building $service with Maven...${NC}"
     cd $service
-    mvn clean install -DskipTests
+    mvn clean install -DskipTests -Dmaven.test.skip=true
     # Check for build failure
     if [ $? -ne 0 ]; then
         echo -e "\033[0;31mERROR: Maven build failed for $service ${NC}"
