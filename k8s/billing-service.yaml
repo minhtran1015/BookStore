@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: billing
-        image: datfan06/bookstore-billing-service:latest
+        image: d1ff1c1le/bookstore-billing-service:latest
         resources:
           requests:
             memory: "512Mi"

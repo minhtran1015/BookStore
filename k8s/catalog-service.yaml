@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: catalog
-        image: datfan06/bookstore-catalog-service:latest
+        image: d1ff1c1le/bookstore-catalog-service:latest
         resources:
           requests:
             memory: "1.5Gi"

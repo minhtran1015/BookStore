@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: order
-        image: datfan06/bookstore-order-service:latest
+        image: d1ff1c1le/bookstore-order-service:latest
         resources:
           requests:
             memory: "1Gi"

@@ -57,7 +57,7 @@ spec:
     spec:
       containers:
       - name: prometheus
-        image: datfan06/bookstore-prometheus:latest
+        image: d1ff1c1le/bookstore-prometheus:latest
         resources:
           requests:
             cpu: 100m

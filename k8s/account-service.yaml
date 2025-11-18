@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: account
-        image: datfan06/bookstore-account-service:latest
+        image: d1ff1c1le/bookstore-account-service:latest
         resources:
           requests:
             memory: "1Gi"

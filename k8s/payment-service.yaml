@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: payment
-        image: datfan06/bookstore-payment-service:latest
+        image: d1ff1c1le/bookstore-payment-service:latest
         resources:
           requests:
             memory: "1536Mi"
