@@ -38,24 +38,24 @@ spec:
     spec:
       containers:
       - name: mysql
-        image: mariadb:10.5
+        image: mysql:8.0
         resources:
           requests:
-            memory: "64Mi"
+            memory: "128Mi"
             cpu: "100m"
           limits:
-            memory: "256Mi"
-            cpu: "300m"
+            memory: "512Mi"
+            cpu: "500m"
         ports:
         - containerPort: 3306
         env:
-        - name: MARIADB_DATABASE
+        - name: MYSQL_DATABASE
           value: "bookstore_db"
-        - name: MARIADB_USER
+        - name: MYSQL_USER
           value: "bookstoreDBA"
-        - name: MARIADB_PASSWORD
+        - name: MYSQL_PASSWORD
           value: "PaSSworD"
-        - name: MARIADB_ROOT_PASSWORD
+        - name: MYSQL_ROOT_PASSWORD
           value: "r00tPaSSworD"
         volumeMounts:
         - name: mysql-persistent-storage

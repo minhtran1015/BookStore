@@ -4,7 +4,7 @@ metadata:
   name: bookstore-account-service
   namespace: bookstore
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -23,11 +23,11 @@ spec:
         image: d1ff1c1le/bookstore-account-service:latest
         resources:
           requests:
-            memory: "1Gi"
-            cpu: "250m"
+            memory: "128Mi"
+            cpu: "100m"
           limits:
-            memory: "2Gi"
-            cpu: "500m"
+            memory: "512Mi"
+            cpu: "300m"
         ports:
         - containerPort: 4001
         livenessProbe:
