@@ -35,9 +35,12 @@ print_step() {
     echo -e "${PURPLE}[STEP]${NC} $1"
 }
 
-# Docker Hub credentials provided
-DOCKERHUB_USERNAME="d1ff1c1le"
-DOCKERHUB_TOKEN="dckr_pat_uJl-mK5rm4btvI8bwd5BUjLZPKk"
+# Docker Hub credentials - Load from environment variables
+if [ -z "$DOCKERHUB_USERNAME" ] || [ -z "$DOCKERHUB_TOKEN" ]; then
+    echo "❌ Error: DOCKERHUB_USERNAME and DOCKERHUB_TOKEN must be set in environment"
+    echo "Please source your .env file first: source load_env.sh"
+    exit 1
+fi
 
 main() {
     echo ""

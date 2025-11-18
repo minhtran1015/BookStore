@@ -61,8 +61,6 @@ Click **New repository secret** for each of the following:
 - Click **Add secret**
 
 ## Environment Protection (Optional but Recommended)
-- **Secret**: `dckr_pat_uJl-mK5rm4btvI8bwd5BUjLZPKk`
-- Click **Add secret**
 
 ### 3. Create GitHub Personal Access Token
 
@@ -164,11 +162,11 @@ You can test your Docker Hub credentials locally:
 echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
 # Test image push (if you have a test image)
-docker tag hello-world d1ff1c1le/test:latest
-docker push d1ff1c1le/test:latest
+docker tag hello-world $DOCKERHUB_USERNAME/test:latest
+docker push $DOCKERHUB_USERNAME/test:latest
 
 # Cleanup
-docker rmi d1ff1c1le/test:latest
+docker rmi $DOCKERHUB_USERNAME/test:latest
 ```
 
 ## Next Steps
@@ -191,7 +189,7 @@ Once configured, your CI/CD pipeline will:
    - Run security scans and tests
    - Build Docker images
    - Login to Docker Hub using your credentials
-   - Push images with tags like `d1ff1c1le/bookstore-account-service:v20241117-abc123`
+   - Push images with tags like `$DOCKERHUB_USERNAME/bookstore-account-service:v20241117-abc123`
 
 2. **CD Phase** (GitOps + ArgoCD):
    - Update Kubernetes manifests with new image tags
