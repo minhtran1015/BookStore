@@ -1,12 +1,26 @@
 #!/bin/bash
 
+# Load environment variables from .env file if it exists
+if [ -f ".env" ]; then
+    echo -e "${GREEN}Loading environment variables from .env file...${NC}"
+    set -a
+    source .env
+    set +a
+fi
+
 # Set up color for outputs
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Xác định prefix cho Docker Hub repository (thay thế bằng username của bạn)
-DOCKER_HUB_PREFIX="datfan06"
+# Sử dụng biến môi trường DOCKER_HUB_PREFIX (bắt buộc phải có)
+if [ -z "$DOCKER_HUB_PREFIX" ]; then
+    echo -e "\033[0;31mERROR: DOCKER_HUB_PREFIX environment variable is not set!${NC}"
+    echo -e "\033[0;31mPlease set it in your .env file or environment.${NC}"
+    echo -e "\033[0;31mExample: DOCKER_HUB_PREFIX=d1ff1c1le${NC}"
+    exit 1
+fi
 
 # Chọn mode: local (chỉ build), minikube (build và load), docker-hub (build và push)
 MODE=${1:-"docker-hub"}

@@ -4,8 +4,8 @@
 
 ```bash
 # 1. Configure environment
-echo "STRIPE_API_KEY=sk_test_your_stripe_key_here" > .env
-echo "REACT_APP_TOGETHER_API_KEY=dummy_key_for_development" >> .env
+cp .env.example .env
+# Edit .env file with your actual API keys and credentials
 
 # 2. Start services
 docker-compose up -d

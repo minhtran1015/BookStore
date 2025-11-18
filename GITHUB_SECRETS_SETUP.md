@@ -1,20 +1,43 @@
 # GitHub Secrets Setup for CI/CD Pipeline
 
-## Docker Hub Credentials Configuration
+## Overview
 
-To enable the enhanced CI/CD pipeline with Docker Hub integration, you need to configure the following secrets in your GitHub repository.
+This guide explains how to set up GitHub repository secrets for the CI/CD pipeline. All secrets are now centrally managed in the `.env` file for local development.
 
-### Required Secrets
+## Prerequisites
 
-1. **DOCKERHUB_USERNAME**: `d1ff1c1le`
-2. **DOCKERHUB_TOKEN**: `dckr_pat_uJl-mK5rm4btvI8bwd5BUjLZPKk`
-3. **GH_TOKEN**: Your GitHub Personal Access Token (for GitOps manifest updates)
+1. Copy `.env.example` to `.env` and fill in your actual credentials:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your real values
+   ```
+
+2. Use the `load_env.sh` script to load environment variables:
+   ```bash
+   ./load_env.sh
+   ```
+
+## Required GitHub Secrets
+
+The CI/CD pipeline requires the following secrets to be configured in GitHub:
+
+### 1. DOCKERHUB_USERNAME
+- **Name**: `DOCKERHUB_USERNAME`
+- **Value**: Your Docker Hub username (from `.env` file: `DOCKERHUB_USERNAME`)
+
+### 2. DOCKERHUB_TOKEN
+- **Name**: `DOCKERHUB_TOKEN`
+- **Value**: Your Docker Hub personal access token (from `.env` file: `DOCKERHUB_TOKEN`)
+
+### 3. GH_TOKEN (Optional - for GitOps)
+- **Name**: `GH_TOKEN`
+- **Value**: GitHub Personal Access Token with `repo` permissions (from `.env` file: `GH_TOKEN`)
 
 ## Step-by-Step Setup
 
 ### 1. Navigate to Repository Settings
 
-1. Go to your GitHub repository: `https://github.com/minhtran1015/BookStore`
+1. Go to your GitHub repository
 2. Click on **Settings** tab
 3. In the left sidebar, click on **Secrets and variables** → **Actions**
 
@@ -24,11 +47,20 @@ Click **New repository secret** for each of the following:
 
 #### Secret 1: DOCKERHUB_USERNAME
 - **Name**: `DOCKERHUB_USERNAME`
-- **Secret**: `d1ff1c1le`
+- **Secret**: Copy the value from your `.env` file (`DOCKERHUB_USERNAME`)
 - Click **Add secret**
 
 #### Secret 2: DOCKERHUB_TOKEN
 - **Name**: `DOCKERHUB_TOKEN`
+- **Secret**: Copy the value from your `.env` file (`DOCKERHUB_TOKEN`)
+- Click **Add secret**
+
+#### Secret 3: GH_TOKEN (Optional)
+- **Name**: `GH_TOKEN`
+- **Secret**: Copy the value from your `.env` file (`GH_TOKEN`)
+- Click **Add secret**
+
+## Environment Protection (Optional but Recommended)
 - **Secret**: `dckr_pat_uJl-mK5rm4btvI8bwd5BUjLZPKk`
 - Click **Add secret**
 
