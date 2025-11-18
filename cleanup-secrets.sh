@@ -20,12 +20,19 @@ echo ""
 
 echo -e "${BLUE}📋 Exposed Secret Details:${NC}"
 echo "• Type: Docker Personal Access Token"
-echo "• Value: dckr_pat_uJl-mK5rm4btvI8bwd5BUjLZPKk"
+echo "• Value: dckr_pat_uJl-mK5rm4btvI8bwd5BUjLZPKk (REVOKED ✅)"
 echo "• Files: GITHUB_SECRETS_SETUP.md, setup-github-secrets.sh"
 echo "• Commits: Multiple commits (ccefd89, 1e69bd8, etc.)"
 echo ""
 
-echo -e "${RED}⚠️  IMMEDIATE ACTIONS REQUIRED:${NC}"
+echo -e "${GREEN}✅ TOKEN ROTATION COMPLETED:${NC}"
+echo "• Old Docker token: REVOKED ✅"
+echo "• New Docker token: ACTIVE ✅"
+echo "• GitHub token: ROTATED ✅"
+echo "• Local .env: UPDATED ✅"
+echo ""
+
+echo -e "${YELLOW}⚠️  REMAINING ACTION: Clean Git History${NC}"
 echo ""
 
 echo -e "${PURPLE}1. REVOKE THE EXPOSED TOKEN IMMEDIATELY:${NC}"
