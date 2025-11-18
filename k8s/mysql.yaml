@@ -38,7 +38,7 @@ spec:
     spec:
       containers:
       - name: mysql
-        image: mysql:8.0
+        image: mysql:5.7.44
         resources:
           requests:
             memory: "256Mi"
