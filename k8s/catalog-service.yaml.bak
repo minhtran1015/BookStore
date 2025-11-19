@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: bookstore-billing-service
+  name: bookstore-catalog-service
   namespace: bookstore
 spec:
-  replicas: 1
+  replicas: 2
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -12,28 +12,28 @@ spec:
       maxSurge: 25%
   selector:
     matchLabels:
-      app: bookstore-billing-service
+      app: bookstore-catalog-service
   template:
     metadata:
       labels:
-        app: bookstore-billing-service
+        app: bookstore-catalog-service
     spec:
       containers:
-      - name: billing
-        image: d1ff1c1le/bookstore-billing-service:latest
+      - name: catalog
+        image: d1ff1c1le/bookstore-catalog-service:latest
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "100m"
-          limits:
-            memory: "2Gi"
+            memory: "1.5Gi"
             cpu: "300m"
+          limits:
+            memory: "3Gi"
+            cpu: "500m"
         ports:
-        - containerPort: 5001
+        - containerPort: 6001
         livenessProbe:
           httpGet:
             path: /actuator/health/liveness
-            port: 5001
+            port: 6001
           initialDelaySeconds: 60
           periodSeconds: 30
           timeoutSeconds: 10
@@ -41,14 +41,14 @@ spec:
         readinessProbe:
           httpGet:
             path: /actuator/health/readiness
-            port: 5001
+            port: 6001
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
         env:
         - name: SERVER_PORT
-          value: "5001"
+          value: "6001"
         - name: ZIPKIN_HOST
           value: "bookstore-zipkin:9411"
         - name: SPRING_PROFILES_ACTIVE
@@ -57,13 +57,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: bookstore-billing-service
+  name: bookstore-catalog-service
   namespace: bookstore
 spec:
   type: NodePort
   ports:
-    - port: 5001
-      targetPort: 5001
-      nodePort: 30005
+    - port: 6001
+      targetPort: 6001
+      nodePort: 30006
   selector:
-    app: bookstore-billing-service 
+    app: bookstore-catalog-service 
