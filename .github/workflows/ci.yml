@@ -31,7 +31,11 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Run build_and_push.sh
+      - name: Build Maven Projects (Skip Tests)
+        run: |
+          mvn clean install -DskipTests -Dmaven.test.skip=true -Dmaven.test.compile.skip=true
+        
+      - name: Run build_and_push.sh  
         run: |
           chmod +x build_and_push.sh
           ./build_and_push.sh docker-hub ${{ github.sha }}
