@@ -23,11 +23,11 @@ spec:
         image: d1ff1c1le/bookstore-api-gateway-service:latest
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "50m"
+            memory: "128Mi"
+            cpu: "25m"
           limits:
-            memory: "1Gi"
-            cpu: "200m"
+            memory: "128Mi"
+            cpu: "25m"
         ports:
         - containerPort: 8765
         livenessProbe:
