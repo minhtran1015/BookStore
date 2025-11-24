@@ -23,11 +23,11 @@ spec:
         image: d1ff1c1le/bookstore-catalog-service:latest
         resources:
           requests:
-            memory: "1.5Gi"
-            cpu: "200m"
+            memory: "256Mi"
+            cpu: "50m"
           limits:
-            memory: "3Gi"
-            cpu: "500m"
+            memory: "1Gi"
+            cpu: "200m"
         ports:
         - containerPort: 6001
         livenessProbe:
