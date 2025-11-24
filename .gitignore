@@ -77,3 +77,8 @@ HELP.md
 *.mvn
 */Logs
 /Logs
+
+### GKE Configuration ###
+.gke-config
+.gke-credentials
+build_and_push.sh.backup

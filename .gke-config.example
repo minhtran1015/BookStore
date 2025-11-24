@@ -1,0 +1,20 @@
+# GKE Configuration File
+# Copy this file to .gke-config and fill in your values
+# The setup script will read from this file
+
+# Required: Your Google Cloud Project ID
+GCP_PROJECT_ID=your-project-id-here
+
+# Optional: Cluster configuration (defaults will be used if not specified)
+CLUSTER_NAME=bookstore-cluster
+GCP_ZONE=us-central1-a
+NUM_NODES=3
+MACHINE_TYPE=e2-medium
+
+# Optional: Docker registry configuration
+# Use 'gcr' for Google Container Registry or 'dockerhub' for Docker Hub
+REGISTRY_TYPE=gcr
+
+# Optional: GitHub repo for ArgoCD (if different from current)
+# GITHUB_REPO=https://github.com/minhtran1015/BookStore.git
+# GITHUB_BRANCH=master

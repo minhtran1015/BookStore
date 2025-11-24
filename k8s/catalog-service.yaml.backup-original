@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: bookstore-payment-service
+  name: bookstore-catalog-service
   namespace: bookstore
 spec:
   replicas: 1
@@ -12,28 +12,28 @@ spec:
       maxSurge: 25%
   selector:
     matchLabels:
-      app: bookstore-payment-service
+      app: bookstore-catalog-service
   template:
     metadata:
       labels:
-        app: bookstore-payment-service
+        app: bookstore-catalog-service
     spec:
       containers:
-      - name: payment
-        image: d1ff1c1le/bookstore-payment-service:latest
+      - name: catalog
+        image: d1ff1c1le/bookstore-catalog-service:latest
         resources:
           requests:
-            memory: "1536Mi"
-            cpu: "50m"
+            memory: "1.5Gi"
+            cpu: "300m"
           limits:
             memory: "3Gi"
-            cpu: "200m"
+            cpu: "500m"
         ports:
-        - containerPort: 8001
+        - containerPort: 6001
         livenessProbe:
           httpGet:
             path: /actuator/health/liveness
-            port: 8001
+            port: 6001
           initialDelaySeconds: 60
           periodSeconds: 30
           timeoutSeconds: 10
@@ -41,14 +41,14 @@ spec:
         readinessProbe:
           httpGet:
             path: /actuator/health/readiness
-            port: 8001
+            port: 6001
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
         env:
         - name: SERVER_PORT
-          value: "8001"
+          value: "6001"
         - name: ZIPKIN_HOST
           value: "bookstore-zipkin:9411"
         - name: SPRING_PROFILES_ACTIVE
@@ -57,13 +57,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: bookstore-payment-service
+  name: bookstore-catalog-service
   namespace: bookstore
 spec:
   type: NodePort
   ports:
-    - port: 8001
-      targetPort: 8001
-      nodePort: 30008
+    - port: 6001
+      targetPort: 6001
+      nodePort: 30006
   selector:
-    app: bookstore-payment-service 
+    app: bookstore-catalog-service 

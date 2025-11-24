@@ -23,9 +23,24 @@ nodes:
   - containerPort: 30003
     hostPort: 30003
     protocol: TCP
+  # Increase resources for better performance
+  resources:
+    requests:
+      memory: "4Gi"
+      cpu: "2"
 - role: worker
   labels:
     node-type: worker
+  # Increase resources for worker nodes
+  resources:
+    requests:
+      memory: "2Gi"
+      cpu: "1"
 - role: worker  
   labels:
     node-type: worker
+  # Increase resources for worker nodes
+  resources:
+    requests:
+      memory: "2Gi"
+      cpu: "1"

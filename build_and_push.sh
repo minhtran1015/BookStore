@@ -18,7 +18,7 @@ NC='\033[0m' # No Color
 if [ -z "$DOCKER_HUB_PREFIX" ]; then
     echo -e "\033[0;31mERROR: DOCKER_HUB_PREFIX environment variable is not set!${NC}"
     echo -e "\033[0;31mPlease set it in your .env file or environment.${NC}"
-    echo -e "\033[0;31mExample: DOCKER_HUB_PREFIX=d1ff1c1le${NC}"
+    echo -e "\033[0;31mExample: DOCKER_HUB_PREFIX="gcr.io/lyrical-tooling-475815-i8"
     exit 1
 fi
 
