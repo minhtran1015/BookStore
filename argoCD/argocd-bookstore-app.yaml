@@ -7,8 +7,8 @@ spec:
   project: default
 
   source:
-    # THAY ĐỔI CHO PHÙ HỢP VỚI REPO CỦA BẠN
-    repoURL: 'https://github.com/DatPhan06/BookStoreApp-Microservice-App.git'
+    # Updated to use your repository
+    repoURL: 'https://github.com/minhtran1015/BookStore.git'
     path: 'k8s' # Đường dẫn đến thư mục chứa các manifest YAML
     targetRevision: master # Hoặc tên branch cụ thể, ví dụ 'master' hoặc 'main'
 
