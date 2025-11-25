@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: eureka-server
-        image: d1ff1c1le/bookstore-eureka-discovery-service:latest # Ensure this matches your Docker Hub username and image name
+        image: gcr.io/lyrical-tooling-475815-i8/bookstore-eureka-discovery-service:latest
         ports:
         - containerPort: 8761
         env:

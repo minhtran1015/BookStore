@@ -1,26 +1,35 @@
-# Stage 1: Build the React application
+# Stage 1: Build the React application with optimized caching
 FROM node:18-alpine AS build
 WORKDIR /app
 
+# Install dependencies first for better caching
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
-COPY . .
+RUN yarn install --frozen-lockfile --production=false \
+    && yarn cache clean
 
-# Build the application
+# Copy source and build
+COPY . .
 RUN yarn build
 
-# Stage 2: Serve the application with Nginx
+# Stage 2: Serve with minimal nginx
 FROM nginx:alpine
+
+# Remove default nginx config and add non-root user
+RUN rm -rf /usr/share/nginx/html/* \
+    && addgroup -g 1001 -S appuser \
+    && adduser -u 1001 -S appuser -G appuser
 
 # Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy the build output from the build stage
-# The default build output directory for Create React App is 'build'
+# Copy the build output
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Expose port 80 (Nginx default port)
+# Set proper permissions
+RUN chown -R appuser:appuser /usr/share/nginx/html
+
 EXPOSE 80
 
-# Start Nginx when the container launches
+# Use non-root user
+USER appuser
 CMD ["nginx", "-g", "daemon off;"] 

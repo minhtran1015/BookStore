@@ -97,7 +97,7 @@ spec:
     spec:
       containers:
       - name: telegraf
-        image: d1ff1c1le/bookstore-telegraf:latest
+        image: gcr.io/lyrical-tooling-475815-i8/bookstore-telegraf:latest
         ports:
         - containerPort: 8125
           protocol: UDP

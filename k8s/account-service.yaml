@@ -20,14 +20,14 @@ spec:
     spec:
       containers:
       - name: account
-        image: d1ff1c1le/bookstore-account-service:latest
+        image: gcr.io/lyrical-tooling-475815-i8/bookstore-account-service:latest
         resources:
           requests:
-            memory: "128Mi"
-            cpu: "25m"
+            memory: "64Mi"
+            cpu: "10m"
           limits:
             memory: "128Mi"
-            cpu: "25m"
+            cpu: "50m"
         ports:
         - containerPort: 4001
         livenessProbe:

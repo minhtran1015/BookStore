@@ -57,7 +57,7 @@ spec:
     spec:
       containers:
       - name: prometheus
-        image: d1ff1c1le/bookstore-prometheus:latest
+        image: gcr.io/lyrical-tooling-475815-i8/bookstore-prometheus:latest
         resources:
           requests:
             cpu: 100m

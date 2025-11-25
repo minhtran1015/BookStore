@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: d1ff1c1le/bookstore-frontend-react-app:latest # Replace with your actual image name/path if different
+        image: gcr.io/lyrical-tooling-475815-i8/bookstore-frontend-react-app:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 80

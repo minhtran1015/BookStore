@@ -27,7 +27,7 @@ spec:
     spec:
       initContainers:
       - name: init-copy-dashboards
-        image: d1ff1c1le/graphana:latest
+        image: gcr.io/lyrical-tooling-475815-i8/graphana:latest
         command: ['sh', '-c']
         args:
           - |
@@ -47,7 +47,7 @@ spec:
           mountPath: /var/lib/grafana
       containers:
       - name: grafana
-        image: d1ff1c1le/graphana:latest
+        image: gcr.io/lyrical-tooling-475815-i8/graphana:latest
         resources:
           requests:
             cpu: 50m
