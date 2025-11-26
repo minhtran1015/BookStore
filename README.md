@@ -107,6 +107,22 @@ Cách này sẽ khởi chạy tất cả các microservices, cơ sở dữ liệ
 
 Phần này mô tả cách triển khai và quản lý ứng dụng trên cụm Kubernetes. Các tệp cấu hình YAML cho Kubernetes nằm trong thư mục `k8s` (giả định, cần kiểm tra lại).
 
+#### 🌐 Production Deployment (GKE)
+
+Ứng dụng hiện đang được triển khai trên Google Kubernetes Engine:
+
+| Thành phần | Giá trị |
+|------------|---------|
+| **Project ID** | `lyrical-tooling-475815-i8` |
+| **Cluster** | `bookstore-cluster` |
+| **Zone** | `us-central1-a` |
+| **Registry** | `gcr.io/lyrical-tooling-475815-i8` |
+| **ArgoCD** | https://34.136.30.74 |
+
+**Truy cập ArgoCD:**
+- Username: `admin`
+- Password: `-mJR19yatNNHZ3km`
+
 1.  **Build và Push Docker Images:**
     Bạn cần build Docker image cho từng microservice và push chúng lên một Docker registry (ví dụ: Docker Hub, Google Container Registry). Script `build_and_push.sh` có thể hỗ trợ việc này.
     ```bash

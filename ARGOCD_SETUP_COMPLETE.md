@@ -96,13 +96,31 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 - **Username**: `admin`
 - **Password**: Retrieved from secret during setup
 
+### **🌐 Production ArgoCD Access (GKE)**
+
+ArgoCD is deployed and accessible on our GKE cluster:
+
+| Property | Value |
+|----------|-------|
+| **URL** | https://34.136.30.74 |
+| **Username** | `admin` |
+| **Password** | `-mJR19yatNNHZ3km` |
+
+**CLI Login (Production):**
+```bash
+argocd login 34.136.30.74 --username admin --password '-mJR19yatNNHZ3km' --insecure
+```
+
 ### **ArgoCD CLI**
 ```bash
 # Install CLI
 ./install-argocd-cli.sh
 
-# Login
+# Login (local)
 argocd login localhost:30080 --username admin --insecure
+
+# Login (production GKE)
+argocd login 34.136.30.74 --username admin --password '-mJR19yatNNHZ3km' --insecure
 
 # Manage applications
 argocd app list

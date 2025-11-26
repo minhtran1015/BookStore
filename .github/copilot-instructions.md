@@ -212,6 +212,69 @@ Set via `SPRING_PROFILES_ACTIVE` env var (see `application.yml` in each service)
 - **JWT issues:** Verify `JWTKeystore.p12` and passwords in Account Service security config
 - **Database migration fails:** Check `flyway.baseline-on-migrate: true` in profiles
 
+### Production Deployment & Resource Optimization (GKE Experience)
+
+#### Architecture Compatibility Issues Resolved:
+- **ARM64 vs AMD64 Mismatch:** Apple Silicon Mac builds ARM64 images by default, but GKE nodes are AMD64
+  - **Solution:** Use Docker buildx for cross-platform builds: `docker buildx build --platform linux/amd64`
+  - **Implementation:** Created `build-amd64.sh` script for all services with `:amd64` tags
+  - **Verification:** All images rebuilt and pushed to GCR as `gcr.io/lyrical-tooling-475815-i8/*:amd64`
+
+#### Database Engine Migration:
+- **MySQL 8.0 Resource Issues:** MySQL 8.0 requires significant memory (256Mi+) and CPU (50m+) for initialization
+- **MariaDB Migration:** Switched to MariaDB 10.6 for better resource efficiency
+  - Reduced memory footprint: 64Mi request, 128Mi limit
+  - Faster initialization on constrained resources
+  - Compatible with existing Spring Boot MySQL drivers
+
+#### Resource Constraints & Optimization:
+- **Cluster Limits:** GKE e2-medium nodes (2 vCPU, 4GB RAM) with quota restrictions
+- **CPU Starvation:** Services experiencing 99% CPU usage, pods failing to schedule
+- **Memory Pressure:** OOMKilled events on MySQL pods
+- **Optimization Strategy:**
+  ```yaml
+  # Minimal viable resource allocation:
+  resources:
+    requests:
+      memory: "64Mi"      # Reduced from 512Mi (87% reduction)
+      cpu: "10m"          # Reduced from 100m (90% reduction)
+    limits:
+      memory: "128Mi"     # Reduced from 1Gi (87% reduction)  
+      cpu: "50m"          # Reduced from 200m (75% reduction)
+  ```
+
+#### Service Discovery Resolution:
+- **ClusterIP vs Service Names:** Applications correctly configured to use `bookstore-mysql-db:3306` via Docker profile
+- **Dockerize Health Checks:** `dockerize` tool resolves service names to ClusterIP for connection testing
+- **Network Flow:** `Service DNS → ClusterIP → Pod IP → Container Port`
+
+#### Container Registry Migration:
+- **Docker Hub → GCR:** Migrated from Docker Hub (`d1ff1c1le/*`) to Google Container Registry (`gcr.io/lyrical-tooling-475815-i8/*`)
+- **Benefits:** Reduced pull latency, integrated with GCP IAM, no rate limiting
+- **Implementation:** Updated all k8s/*.yaml manifests to reference GCR images with `:amd64` tags
+
+#### ArgoCD GitOps Integration:
+- **Deployment:** ArgoCD LoadBalancer accessible at external IP for continuous deployment
+- **Git Integration:** Monitors repository changes for automatic application sync
+- **Status:** Successfully deployed and operational
+- **Access URL:** https://34.136.30.74
+- **Username:** `admin`
+- **Password:** `-mJR19yatNNHZ3km`
+- **CLI Login:** `argocd login 34.136.30.74 --username admin --password '-mJR19yatNNHZ3km' --insecure`
+
+#### Monitoring Stack Deployment:
+- **Zipkin:** Distributed tracing (port 9411) - NodePort 30009
+- **Prometheus:** Metrics collection with custom resource optimization
+- **Grafana:** Visualization dashboard (port 3030) - NodePort 30011
+- **Resource Impact:** Monitoring services consume significant cluster resources
+
+#### Lessons Learned:
+1. **Container Architecture Matters:** Ensure build platform matches deployment platform
+2. **Resource Planning Critical:** e2-medium nodes require aggressive resource optimization
+3. **Database Selection Impact:** MariaDB significantly more efficient than MySQL 8.0 for constrained environments
+4. **Service Prioritization:** Non-critical services should be optional in resource-constrained deployments
+5. **Initialization Timing:** Database startup time increases exponentially with reduced CPU allocation
+
 ---
 
 ## References

@@ -1,6 +1,22 @@
 # Google Kubernetes Engine (GKE) Setup Guide for BookStore
 
+**Last Updated:** November 26, 2025
+
 This guide will help you deploy the BookStore application on Google Kubernetes Engine.
+
+## 🎯 Current Production Deployment
+
+Our BookStore application is currently deployed on GKE with the following configuration:
+
+| Property | Value |
+|----------|-------|
+| **Project ID** | `lyrical-tooling-475815-i8` |
+| **Cluster Name** | `bookstore-cluster` |
+| **Zone** | `us-central1-a` |
+| **Nodes** | 2 x e2-medium |
+| **Container Registry** | `gcr.io/lyrical-tooling-475815-i8` |
+| **ArgoCD URL** | https://34.136.30.74 |
+| **ArgoCD Password** | `-mJR19yatNNHZ3km` |
 
 ## Prerequisites
 
