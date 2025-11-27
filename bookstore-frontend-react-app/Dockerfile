@@ -14,10 +14,8 @@ RUN yarn build
 # Stage 2: Serve with minimal nginx
 FROM nginx:alpine
 
-# Remove default nginx config and add non-root user
-RUN rm -rf /usr/share/nginx/html/* \
-    && addgroup -g 1001 -S appuser \
-    && adduser -u 1001 -S appuser -G appuser
+# Remove default nginx config
+RUN rm -rf /usr/share/nginx/html/*
 
 # Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
@@ -25,11 +23,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copy the build output
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Set proper permissions
-RUN chown -R appuser:appuser /usr/share/nginx/html
-
 EXPOSE 80
 
-# Use non-root user
-USER appuser
-CMD ["nginx", "-g", "daemon off;"] 
+CMD ["nginx", "-g", "daemon off;"]

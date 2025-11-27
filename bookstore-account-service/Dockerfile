@@ -8,8 +8,9 @@ RUN addgroup -g 1001 -S appuser && adduser -u 1001 -S appuser -G appuser
 COPY target/*.jar account-service.jar
 COPY dockerize dockerize
 
-# Change ownership to non-root user
-RUN chown -R appuser:appuser /account-service.jar /dockerize
+# Create Logs directory for logback and change ownership to non-root user
+RUN mkdir -p /Logs && \
+    chown -R appuser:appuser /account-service.jar /dockerize /Logs
 USER appuser
 
 # Use exec form and optimize JVM settings for containers

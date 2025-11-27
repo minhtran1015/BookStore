@@ -2,7 +2,8 @@ FROM amazoncorretto:8-alpine-jre
 
 VOLUME /tmp
 
-
+# Create Logs directory for logback
+RUN mkdir -p /Logs
 
 COPY target/*.jar billing-service.jar
 
