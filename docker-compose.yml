@@ -253,13 +253,15 @@ services:
     build:
       context: ./bookstore-frontend-react-app
       dockerfile: Dockerfile
+      args:
+        REACT_APP_GEMINI_API_KEY: ${REACT_APP_GEMINI_API_KEY}
     container_name: bookstore-frontend
     hostname: bookstore-frontend
     ports:
       - "3000:80"
     environment:
       - REACT_APP_API_URL=http://bookstore-zuul-api-gateway-server:8765
-      - REACT_APP_TOGETHER_API_KEY=${REACT_APP_TOGETHER_API_KEY}
+      - REACT_APP_GEMINI_API_KEY=${REACT_APP_GEMINI_API_KEY}
     networks:
       - bookstore-app-network
     depends_on:

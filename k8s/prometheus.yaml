@@ -57,7 +57,14 @@ spec:
     spec:
       containers:
       - name: prometheus
-        image: gcr.io/lyrical-tooling-475815-i8/bookstore-prometheus:latest
+        image: prom/prometheus:latest
+        args:
+          - "--config.file=/etc/prometheus/prometheus.yml"
+          - "--storage.tsdb.path=/prometheus/"
+          - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+          - "--web.console.templates=/usr/share/prometheus/consoles"
+          - "--web.external-url=/prometheus/"
+          - "--web.route-prefix=/prometheus/"
         resources:
           requests:
             cpu: 100m
@@ -88,4 +95,4 @@ spec:
       targetPort: 9090
       nodePort: 30010
   selector:
-    app: bookstore-prometheus 
+    app: bookstore-prometheus

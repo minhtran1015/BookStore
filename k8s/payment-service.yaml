@@ -20,24 +20,30 @@ spec:
     spec:
       containers:
       - name: payment
-        image: gcr.io/lyrical-tooling-475815-i8/bookstore-payment-service:latest
+        image: gcr.io/my-third-project-479302/bookstore-payment-service:latest
         resources:
           requests:
-            memory: "64Mi"
-            cpu: "10m"
+            memory: "256Mi"
+            cpu: "100m"
           limits:
-            memory: "128Mi"
-            cpu: "50m"
+            memory: "1Gi"
+            cpu: "1000m"
         ports:
         - containerPort: 8001
+        startupProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 30
         livenessProbe:
           httpGet:
             path: /actuator/health/liveness
             port: 8001
-          initialDelaySeconds: 60
           periodSeconds: 30
           timeoutSeconds: 10
-          failureThreshold: 3
+          failureThreshold: 5
         readinessProbe:
           httpGet:
             path: /actuator/health/readiness
@@ -45,7 +51,7 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
-          failureThreshold: 3
+          failureThreshold: 5
         env:
         - name: SERVER_PORT
           value: "8001"
@@ -53,6 +59,11 @@ spec:
           value: "bookstore-zipkin:9411"
         - name: SPRING_PROFILES_ACTIVE
           value: "docker"
+        - name: STRIPE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: stripe-secret
+              key: stripe-api-key
 ---
 apiVersion: v1
 kind: Service

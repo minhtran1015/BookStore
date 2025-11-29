@@ -51,31 +51,35 @@ fi
 
 print_success "kubectl is installed"
 
-# Load configuration from .gke-config file or environment variables
-CONFIG_FILE=".gke-config"
+# Load configuration from .env file
+CONFIG_FILE=".env"
 
 if [ -f "$CONFIG_FILE" ]; then
     print_status "Loading configuration from $CONFIG_FILE"
-    source "$CONFIG_FILE"
+    # Export variables from .env file
+    export $(grep -v '^#' $CONFIG_FILE | grep -v '^$' | xargs)
 else
-    print_warning "No $CONFIG_FILE found. Using environment variables or defaults."
+    print_error "No $CONFIG_FILE found!"
+    echo ""
+    echo "Please create a .env file from .env.example:"
+    echo "  cp .env.example .env"
+    echo "  # Then edit .env and set your GCP_PROJECT_ID"
+    exit 1
 fi
 
-# Use environment variables or defaults
-PROJECT_ID=${GCP_PROJECT_ID:-${PROJECT_ID:-""}}
+# Use environment variables from .env
+PROJECT_ID=${GCP_PROJECT_ID}
 CLUSTER_NAME=${CLUSTER_NAME:-bookstore-cluster}
 ZONE=${GCP_ZONE:-us-central1-a}
-NUM_NODES=${NUM_NODES:-3}
+NUM_NODES=${NUM_NODES:-2}
 MACHINE_TYPE=${MACHINE_TYPE:-e2-medium}
 
 # Check if PROJECT_ID is set
 if [ -z "$PROJECT_ID" ]; then
-    print_error "GCP_PROJECT_ID is not set!"
+    print_error "GCP_PROJECT_ID is not set in .env file!"
     echo ""
-    echo "Please set it in one of these ways:"
-    echo "  1. Create .gke-config file (copy from .gke-config.example)"
-    echo "  2. Set environment variable: export GCP_PROJECT_ID=your-project-id"
-    echo "  3. Pass as argument: GCP_PROJECT_ID=your-project-id ./gke-setup.sh"
+    echo "Please edit your .env file and set:"
+    echo "  GCP_PROJECT_ID=your-project-id"
     exit 1
 fi
 

@@ -4,24 +4,93 @@ metadata:
   name: bookstore-ingress
   namespace: bookstore
   annotations:
-    # nginx.ingress.kubernetes.io/use-regex: "true" # Không cần nếu dùng pathType: Prefix cho /api
-    # nginx.ingress.kubernetes.io/rewrite-target: /$2 # Bỏ đi vì Zuul đã xử lý /api prefix
-    # nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    # Use cert-manager to automatically provision SSL certificates
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    
+    # Force HTTPS redirect
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    
+    # Increase body size for file uploads
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    
+    # Add security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Frame-Options: SAMEORIGIN";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
 spec:
+  ingressClassName: nginx
+  
+  # TLS configuration
+  tls:
+  - hosts:
+    - bookscar.store
+    - www.bookscar.store
+    secretName: bookstore-tls  # cert-manager will create this secret
+  
   rules:
-  - http:
+  # Rule for bookscar.store
+  - host: bookscar.store
+    http:
       paths:
-      - path: /api # Đổi thành /api với pathType Prefix
-        pathType: Prefix 
+      - path: /api
+        pathType: Prefix
         backend:
           service:
             name: bookstore-zuul-api-gateway-server
             port:
-              number: 8765
-      - path: / # Rule này phải ở sau rule /api/ để không bắt các request /api/
+              number: 9000
+      - path: /grafana
+        pathType: Prefix
+        backend:
+          service:
+            name: bookstore-grafana
+            port:
+              number: 3000
+      - path: /prometheus
+        pathType: Prefix
+        backend:
+          service:
+            name: bookstore-prometheus
+            port:
+              number: 9090
+      - path: /
         pathType: Prefix
         backend:
           service:
             name: frontend-node-service
             port:
-              number: 80 
+              number: 80
+  
+  # Rule for www.bookscar.store
+  - host: www.bookscar.store
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: bookstore-zuul-api-gateway-server
+            port:
+              number: 9000
+      - path: /grafana
+        pathType: Prefix
+        backend:
+          service:
+            name: bookstore-grafana
+            port:
+              number: 3000
+      - path: /prometheus
+        pathType: Prefix
+        backend:
+          service:
+            name: bookstore-prometheus
+            port:
+              number: 9090
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-node-service
+            port:
+              number: 80

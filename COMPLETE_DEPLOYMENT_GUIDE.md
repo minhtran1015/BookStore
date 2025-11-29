@@ -1,580 +1,521 @@
-# BookStoreApp Microservices - Complete Deployment Guide
+# Complete Beginner's Guide: Deploy BookStore to Google Cloud with Domain
 
-## Overview
+**🎯 Goal:** Deploy your BookStore application to Google Cloud Platform (GKE) with your custom domain `bookscar.store`, and learn how to turn it off to avoid charges.
 
-This guide provides comprehensive instructions for deploying the complete BookStoreApp microservices e-commerce application from scratch. The application includes a React frontend with AI-powered chat, Spring Boot microservices, MySQL database, and monitoring stack.
-
-### Architecture
-
-**Core Services:**
-- **bookstore-account-service** (port 4001): Authentication, OAuth2, JWT tokens, user management
-- **bookstore-catalog-service** (port 6001): Product inventory, book data
-- **bookstore-order-service** (port 7001): Order processing, shopping cart
-- **bookstore-billing-service** (port 5001): Invoice generation, billing
-- **bookstore-payment-service** (port 8001): Payment processing
-- **bookstore-api-gateway-service** (port 8765): Zuul API gateway, service routing
-
-**Infrastructure:**
-- **MySQL Database** (port 3306): Shared database for all services
-- **Consul Service Discovery** (port 8500): Service registration and discovery
-- **Eureka Discovery Service**: Alternative service discovery (not used in Docker)
-- **Zipkin** (port 9411): Distributed tracing
-- **React Frontend** (port 3000): Web UI with AI chat functionality
-
-**Monitoring Stack:**
-- **InfluxDB** (port 8086): Time-series database
-- **Prometheus** (port 9090): Metrics collection
-- **Telegraf** (port 8125 UDP): System metrics agent
-- **Grafana** (port 3030): Dashboards (admin/admin)
-- **Chronograf** (port 8888): InfluxDB web UI
-
-## Prerequisites
-
-### System Requirements
-- **Docker**: 28.5.1 or later
-- **Docker Compose**: v2.40.0 or later
-- **Git**: For cloning the repository
-- **Minimum Resources**: 4GB RAM, 10GB disk space
-
-### Environment Setup
-```bash
-# Verify Docker installation
-docker --version
-docker-compose --version
-
-# Ensure Docker daemon is running
-docker info
-```
-
-## Step 1: Clone and Prepare the Repository
-
-```bash
-# Clone the repository
-git clone https://github.com/DatPhan06/BookStoreApp-Microservice-App.git
-cd BookStoreApp-Microservice-App
-
-# Build all microservices (this may take several minutes)
-mvn clean install -DskipTests
-```
-
-## Step 2: Environment Configuration
-
-### Frontend Configuration
-The frontend is already configured to use the correct local development URLs. No changes needed.
-
-### Docker Compose Configuration
-The `docker-compose.yml` file is pre-configured with all necessary services and environment variables.
-
-**Key Environment Variables:**
-- `REACT_APP_API_URL=http://bookstore-zuul-api-gateway-server:8765` - Frontend API gateway URL
-- `REACT_APP_TOGETHER_API_KEY` - AI service API key (optional)
-
-## Step 3: Database Setup
-
-The MySQL database will be automatically initialized with Flyway migrations when containers start. Each service has its own migration scripts in `src/main/resources/db/migration/`.
-
-**Default Database Configuration:**
-- Database: `bookstore_db`
-- Username: `root`
-- Password: `root`
-- Port: `3306`
-
-## Step 4: Deploy the Application
-
-### Option A: Full System Deployment (Recommended)
-```bash
-# Start all services (this will take several minutes for initial build)
-docker-compose up -d --build
-
-# Monitor startup logs
-docker-compose logs -f
-```
-
-### Option B: Step-by-Step Startup (For Troubleshooting)
-
-If you encounter issues with the full deployment, use this step-by-step approach to identify and resolve problems incrementally:
-
-#### Step 1: Start Infrastructure First
-```bash
-# Start only the core infrastructure services
-docker-compose up -d mysql consul zipkin
-
-# Wait 2-3 minutes for services to be ready
-sleep 180
-
-# Verify infrastructure is running
-docker-compose ps mysql consul zipkin
-```
-
-#### Step 2: Start Monitoring Stack
-```bash
-# Add monitoring services
-docker-compose up -d influxdb prometheus telegraf grafana chronograf
-
-# Wait for monitoring services to initialize
-sleep 60
-
-# Verify monitoring services
-curl -I http://localhost:3030  # Grafana
-curl -I http://localhost:9090  # Prometheus
-```
-
-#### Step 3: Start Microservices One by One
-```bash
-# Start account service first (handles authentication)
-docker-compose up -d bookstore-account-service
-sleep 30
-
-# Verify account service
-curl -I http://localhost:4001/health
-
-# Start catalog service
-docker-compose up -d bookstore-catalog-service
-sleep 30
-
-# Verify catalog service and data
-curl http://localhost:6001/products | jq '.content | length'
-
-# Start remaining services
-docker-compose up -d bookstore-order-service bookstore-billing-service bookstore-payment-service
-sleep 60
-
-# Verify all microservices
-docker-compose ps | grep -E "(account|catalog|order|billing|payment)"
-```
-
-#### Step 4: Start API Gateway
-```bash
-# Start the API gateway last
-docker-compose up -d bookstore-zuul-api-gateway-server
-sleep 30
-
-# Test API gateway routes
-curl http://localhost:8765/routes
-curl http://localhost:8765/api/catalog/products | jq '.page.totalElements'
-```
-
-#### Step 5: Start Frontend
-```bash
-# Finally start the React frontend
-docker-compose up -d bookstore-frontend
-
-# Verify frontend
-curl -I http://localhost:3000
-curl -I http://localhost:3000/register
-```
-
-#### Troubleshooting Checks at Each Step
-
-**After Infrastructure Startup:**
-```bash
-# Check MySQL is ready
-docker-compose exec mysql mysql -u root -proot -e "SHOW DATABASES;"
-
-# Check Consul service discovery
-curl http://localhost:8500/v1/catalog/services | jq '.'
-
-# Check Zipkin
-curl -I http://localhost:9411
-```
-
-**After Each Microservice:**
-```bash
-# Check service health
-docker-compose logs [service-name] | tail -20
-
-# Check service registration in Consul
-curl http://localhost:8500/v1/health/service/[service-name]
-
-# Test service-specific endpoints
-# Account: curl http://localhost:4001/health
-# Catalog: curl http://localhost:6001/products?page=0&size=1
-# Order: curl http://localhost:7001/health
-# Billing: curl http://localhost:5001/health
-# Payment: curl http://localhost:8001/health
-```
-
-**If Services Fail to Start:**
-```bash
-# Check for port conflicts
-netstat -tulpn | grep -E "(4001|6001|7001|5001|8001|8765|3306|8500)"
-
-# Check Docker resources
-docker system df
-
-# Clean up and retry
-docker-compose down
-docker system prune -f
-docker-compose up -d --build [service-name]
-```
-
-### Service Startup Order
-The services will start in the correct dependency order due to Docker Compose configuration:
-
-1. **Infrastructure**: MySQL, Consul, Zipkin
-2. **Monitoring**: InfluxDB, Prometheus, Telegraf, Grafana, Chronograf
-3. **Microservices**: Account, Catalog, Order, Billing, Payment, API Gateway
-4. **Frontend**: React application
-
-### Expected Startup Time
-- Initial build: 10-15 minutes
-- Container startup: 2-3 minutes
-- Service registration: 1-2 minutes
-- **Total time**: ~15-20 minutes
-
-## Step 5: Verify Deployment
-
-### Check Service Status
-```bash
-# Verify all containers are running
-docker-compose ps
-
-# Expected output should show all services as "Up"
-```
-
-### Test API Gateway
-```bash
-# Test API gateway health
-curl -s http://localhost:8765/health
-
-# Test catalog service
-curl -s http://localhost:8765/api/catalog/products | jq '.page.content[0].productName'
-```
-
-### Test Frontend
-```bash
-# Test frontend accessibility
-curl -I http://localhost:3000
-
-# Test registration page (SPA routing)
-curl -I http://localhost:3000/register
-```
-
-### Test User Registration
-```bash
-# Test signup API directly
-curl -X POST http://localhost:8765/api/account/signup \
-  -H "Content-Type: application/json" \
-  -d '{
-    "userName": "testuser",
-    "firstName": "Test",
-    "email": "test@example.com",
-    "password": "password123"
-  }'
-```
-
-### Test Authentication
-```bash
-# Get access token
-curl -u 93ed453e-b7ac-4192-a6d4-c45fae0d99ac:client.devd123 \
-  http://localhost:4001/oauth/token \
-  -d grant_type=password \
-  -d username=admin.admin \
-  -d password=admin.devd123
-```
-
-### Test Monitoring Stack
-```bash
-# Grafana (admin/admin)
-curl -I http://localhost:3030
-
-# Prometheus
-curl -I http://localhost:9090
-
-# Zipkin
-curl -I http://localhost:9411
-
-# Consul
-curl -I http://localhost:8500
-```
-
-## Step 6: Access the Application
-
-### Web Interface
-- **Frontend**: http://localhost:3000
-- **Admin Login**: username: `admin.admin`, password: `admin.devd123`
-
-### Service Endpoints
-| Service | URL | Description |
-|---------|-----|-------------|
-| API Gateway | http://localhost:8765 | Main entry point |
-| Account Service | http://localhost:4001 | Authentication |
-| Catalog Service | http://localhost:6001 | Products |
-| Order Service | http://localhost:7001 | Shopping cart |
-| Billing Service | http://localhost:5001 | Invoices |
-| Payment Service | http://localhost:8001 | Payments |
-
-### Monitoring Dashboards
-| Service | URL | Credentials |
-|---------|-----|-------------|
-| Grafana | http://localhost:3030 | admin/admin |
-| Prometheus | http://localhost:9090 | - |
-| Chronograf | http://localhost:8888 | - |
-| Zipkin | http://localhost:9411 | - |
-| Consul | http://localhost:8500 | - |
-
-## Step 7: Troubleshooting
-
-### Common Issues and Solutions
-
-#### Services Not Starting
-```bash
-# Check container logs
-docker-compose logs [service-name]
-
-# Restart specific service
-docker-compose restart [service-name]
-
-# Rebuild and restart
-docker-compose up -d --build [service-name]
-```
-
-#### Database Connection Issues
-```bash
-# Check MySQL container
-docker-compose logs mysql
-
-# Verify database is accessible
-docker-compose exec mysql mysql -u root -proot -e "SHOW DATABASES;"
-```
-
-#### Service Discovery Problems
-```bash
-# Check Consul UI
-open http://localhost:8500
-
-# Verify service registration
-curl http://localhost:8500/v1/catalog/services
-```
-
-#### Frontend Not Loading
-```bash
-# Check frontend container logs
-docker-compose logs bookstore-frontend
-
-# Test nginx configuration
-docker-compose exec bookstore-frontend nginx -t
-
-# Rebuild frontend
-docker-compose up -d --build bookstore-frontend
-```
-
-#### API Gateway Issues
-```bash
-# Test direct service access
-curl http://localhost:4001/health
-
-# Check gateway routes
-curl http://localhost:8765/routes
-```
-
-#### Memory Issues
-```bash
-# Check system resources
-docker system df
-
-# Clean up unused containers/images
-docker system prune -f
-```
-
-### Performance Optimization
-
-#### Resource Allocation
-```yaml
-# In docker-compose.yml, adjust service resources
-services:
-  mysql:
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-        reservations:
-          memory: 512M
-```
-
-#### Scaling Services
-```bash
-# Scale a service
-docker-compose up -d --scale bookstore-catalog-service=3
-```
-
-## Step 8: Development Workflow
-
-### Local Development Setup
-```bash
-# Run only infrastructure services
-docker-compose up -d mysql consul zipkin
-
-# Run specific microservice locally
-cd bookstore-account-service
-mvn spring-boot:run
-
-# Run frontend locally (if needed)
-cd bookstore-frontend-react-app
-npm start
-```
-
-### Code Changes
-```bash
-# Rebuild after code changes
-mvn clean install -DskipTests
-docker-compose up -d --build
-
-# Update specific service
-docker-compose up -d --build bookstore-account-service
-```
-
-### Database Migrations
-```bash
-# Add new migration file
-# bookstore-[service]-service/src/main/resources/db/migration/V[version]__[description].sql
-
-# Apply migrations
-docker-compose restart [service-name]
-```
-
-## Step 9: Backup and Recovery
-
-### Database Backup
-```bash
-# Backup MySQL data
-docker-compose exec mysql mysqldump -u root -proot bookstore_db > backup.sql
-
-# Backup volumes
-docker run --rm -v bookstoreapp_mysql_data:/data -v $(pwd):/backup alpine tar czf /backup/mysql_backup.tar.gz -C /data .
-```
-
-### Configuration Backup
-```bash
-# Backup docker-compose.yml and configurations
-cp docker-compose.yml docker-compose.yml.backup
-cp bookstore-frontend-react-app/nginx.conf nginx.conf.backup
-```
-
-## Step 10: Production Deployment
-
-### Environment Variables
-```bash
-# Set production environment variables
-export REACT_APP_API_URL=https://api.yourdomain.com
-export REACT_APP_TOGETHER_API_KEY=your_production_api_key
-```
-
-### Security Considerations
-- Change default passwords
-- Use environment variables for secrets
-- Configure HTTPS/TLS
-- Set up proper firewall rules
-- Implement rate limiting
-
-### Scaling for Production
-```yaml
-# Production docker-compose.yml adjustments
-services:
-  bookstore-api-gateway-service:
-    deploy:
-      replicas: 3
-      resources:
-        limits:
-          memory: 1G
-          cpus: '1.0'
-```
-
-## Appendix A: Service Details
-
-### Account Service
-- **Port**: 4001
-- **Database**: account_service_ tables
-- **Endpoints**:
-  - `POST /oauth/token` - Get access token
-  - `POST /api/account/signup` - User registration
-  - `GET /api/account/userInfo` - Get user info
-
-### Catalog Service
-- **Port**: 6001
-- **Database**: catalog_service_ tables
-- **Features**: Product inventory, reviews, categories
-- **Sample Data**: 25 pre-loaded books
-
-### Order Service
-- **Port**: 7001
-- **Database**: order_service_ tables
-- **Features**: Shopping cart, order management
-
-### API Gateway (Zuul)
-- **Port**: 8765
-- **Routes**:
-  - `/api/account/**` → Account Service
-  - `/api/catalog/**` → Catalog Service
-  - `/api/order/**` → Order Service
-  - `/api/billing/**` → Billing Service
-  - `/api/payment/**` → Payment Service
-
-## Appendix B: Monitoring Setup
-
-### Grafana Dashboards
-Pre-configured dashboards for:
-- Service health monitoring
-- Database performance
-- API response times
-- Error rates
-
-### Prometheus Metrics
-Collected metrics:
-- JVM metrics (heap, GC, threads)
-- HTTP request metrics
-- Database connection pools
-- Custom business metrics
-
-### Zipkin Tracing
-Distributed tracing for:
-- Service-to-service calls
-- Database queries
-- External API calls
-
-## Appendix C: AI Chat Integration
-
-### Google Gemini Setup
-The frontend includes AI-powered book recommendations using Google Generative AI.
-
-**Configuration**:
-- API Key: Set in `REACT_APP_TOGETHER_API_KEY` environment variable
-- Model: Gemini 1.5 Flash
-- Features: Multilingual support, inventory-based recommendations
-
-**Usage**:
-- Chat interface available on product pages
-- Recommends only books available in inventory
-- Supports multiple languages
-
-## Quick Start Commands
-
-```bash
-# One-command deployment
-git clone https://github.com/DatPhan06/BookStoreApp-Microservice-App.git
-cd BookStoreApp-Microservice-App
-mvn clean install -DskipTests
-docker-compose up -d --build
-
-# Verification
-curl -I http://localhost:3000  # Frontend
-curl -I http://localhost:8765  # API Gateway
-curl -I http://localhost:3030  # Grafana
-
-# Access application
-open http://localhost:3000
-```
-
-## Support and Documentation
-
-- **Frontend Setup Guide**: `FRONTEND_SETUP_GUIDE.md`
-- **API Documentation**: Available via Swagger at `/swagger-ui.html` on each service
-- **Logs**: `docker-compose logs -f [service-name]`
-- **Health Checks**: `docker-compose ps`
+**⏱️ Time Required:** 30-45 minutes  
+**💰 Cost:** ~$5-10 for testing (can be free with $300 GCP credit)
 
 ---
 
-**Last Updated**: October 28, 2025
-**Version**: 1.0
-**Status**: ✅ Fully tested and verified</content>
-<filePath">/Users/trandinhquangminh/Codespace/BookStoreApp-Microservice-App/COMPLETE_DEPLOYMENT_GUIDE.md
+## 📋 Table of Contents
+
+1. [Before You Start](#before-you-start)
+2. [Part 1: Google Cloud Setup](#part-1-google-cloud-setup)
+3. [Part 2: Deploy to GKE](#part-2-deploy-to-gke)
+4. [Part 3: Configure Domain](#part-3-configure-domain)
+5. [Part 4: Verify Deployment](#part-4-verify-deployment)
+6. [Part 5: Turn Off to Save Money](#part-5-turn-off-to-save-money)
+7. [Cost Breakdown](#cost-breakdown)
+8. [Troubleshooting](#troubleshooting)
+
+---
+
+## Before You Start
+
+### What You Need
+
+- ✅ Google account (Gmail account)
+- ✅ Credit/debit card (for GCP verification - won't be charged if you stay in free tier)
+- ✅ Domain `bookscar.store` (already purchased from GoDaddy)
+- ✅ Windows computer with PowerShell
+- ✅ About 30-45 minutes of time
+
+### What You'll Get
+
+- 🌐 Your BookStore app running on Google Cloud
+- 🔒 HTTPS with SSL certificate (secure connection)
+- 🌍 Accessible at `https://bookscar.store`
+- 📊 Monitoring and management tools
+- 💰 Ability to turn on/off to control costs
+
+---
+
+## Part 1: Google Cloud Setup
+
+### Step 1.1: Create Google Cloud Account
+
+1. **Go to Google Cloud Console**
+   - Open: https://console.cloud.google.com/
+   - Sign in with your Google account
+
+2. **Activate Free Trial** (if first time)
+   - Click "Activate" or "Try for Free"
+   - Enter your credit card details (required for verification)
+   - You get **$300 free credits** valid for 90 days
+   - You won't be charged unless you explicitly upgrade
+
+3. **Create a New Project**
+   - Click "Select a project" at the top
+   - Click "New Project"
+   - **Project name:** `bookstore-app` (or any name you like)
+   - **Project ID:** Will be auto-generated (e.g., `bookstore-app-123456`)
+   - **Note down your Project ID** - you'll need it later!
+   - Click "Create"
+
+### Step 1.2: Enable Billing
+
+1. Go to: https://console.cloud.google.com/billing
+2. Link your project to billing account
+3. Verify your project is selected at the top
+
+### Step 1.3: Install Google Cloud CLI
+
+**For Windows:**
+
+1. **Download Google Cloud SDK**
+   - Go to: https://cloud.google.com/sdk/docs/install
+   - Download the Windows installer
+   - Run the installer (GoogleCloudSDKInstaller.exe)
+
+2. **Run the Installer**
+   - Check "Run 'gcloud init'" at the end
+   - Click "Finish"
+
+3. **Initialize gcloud**
+   A PowerShell window will open. Follow the prompts:
+   
+   ```powershell
+   # You'll be asked to login
+   # Choose: Y (Yes)
+   # Your browser will open - login with your Google account
+   
+   # Choose your project
+   # Enter the number for your bookstore project
+   
+   # Choose default region
+   # Enter: 14 (for us-central1)
+   ```
+
+4. **Verify Installation**
+   Open a new PowerShell window and run:
+   ```powershell
+   gcloud --version
+   ```
+   You should see version information.
+
+### Step 1.4: Install kubectl
+
+In PowerShell, run:
+
+```powershell
+gcloud components install kubectl
+```
+
+Verify:
+  --region=us-central1 `
+  --project=$env:GCP_PROJECT_ID
+
+# Get the IP address
+gcloud compute addresses describe bookstore-static-ip `
+  --region=us-central1 `
+  --format="get(address)"
+```
+
+**📝 IMPORTANT:** Copy this IP address! You'll need it for DNS configuration.
+
+### Step 3.2: Install cert-manager (for SSL)
+
+```powershell
+# Install cert-manager
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.2/cert-manager.yaml
+
+# Wait for cert-manager to be ready (takes 1-2 minutes)
+kubectl wait --for=condition=Available --timeout=300s deployment/cert-manager -n cert-manager
+```
+
+### Step 3.3: Apply Domain Configuration
+
+```powershell
+# Apply cert-manager configuration
+kubectl apply -f k8s/cert-manager-setup.yaml
+
+# Apply updated Ingress with domain
+kubectl apply -f k8s/ingress.yaml
+
+# Check Ingress status
+kubectl get ingress -n bookstore
+```
+
+### Step 3.4: Configure DNS in GoDaddy
+
+1. **Go to GoDaddy DNS Management**
+   - Open: https://dcc.godaddy.com/manage/bookscar.store/dns
+   - Sign in to your GoDaddy account
+
+2. **Add A Record for Root Domain**
+   - Click "Add" button
+   - **Type:** A
+   - **Name:** @ (this means root domain)
+   - **Value:** Paste your static IP from Step 3.1
+   - **TTL:** 600 seconds
+   - Click "Save"
+
+3. **Add A Record for WWW**
+   - Click "Add" button again
+   - **Type:** A
+   - **Name:** www
+   - **Value:** Same static IP as above
+   - **TTL:** 600 seconds
+   - Click "Save"
+
+4. **Wait for DNS Propagation**
+   - Usually takes 10-30 minutes
+   - Can take up to 48 hours in rare cases
+
+### Step 3.5: Verify DNS
+
+```powershell
+# Check if DNS is working
+nslookup bookscar.store
+nslookup www.bookscar.store
+
+# You should see your static IP in the results
+```
+
+### Step 3.6: Wait for SSL Certificate
+
+```powershell
+# Check certificate status
+kubectl get certificate -n bookstore
+
+# Wait until you see: bookstore-tls   True
+# This can take 5-10 minutes after DNS propagates
+
+# If it's taking too long, check cert-manager logs:
+kubectl logs -n cert-manager deployment/cert-manager --tail=50
+```
+
+---
+
+## Part 4: Verify Deployment
+
+### Step 4.1: Access Your Application
+
+1. **Open your browser**
+2. **Go to:** `https://bookscar.store`
+3. **You should see:**
+   - ✅ Your BookStore application
+   - ✅ Green padlock (SSL certificate)
+   - ✅ No security warnings
+
+### Step 4.2: Test the Application
+
+1. **Browse books** in the catalog
+2. **Create an account** or login
+3. **Add items to cart**
+4. **Test checkout** (use test payment info)
+
+### Step 4.3: Access Monitoring Tools
+
+**ArgoCD (Deployment Management):**
+```powershell
+# Get ArgoCD URL
+kubectl get svc argocd-server -n argocd
+
+# Or port-forward to access locally
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+# Then open: https://localhost:8080
+```
+
+**Grafana (Monitoring):**
+```powershell
+kubectl port-forward svc/bookstore-graphana -n bookstore 3030:3000
+# Then open: http://localhost:3030
+# Username: admin, Password: admin
+```
+
+**Prometheus (Metrics):**
+```powershell
+kubectl port-forward svc/bookstore-prometheus -n bookstore 9090:9090
+# Then open: http://localhost:9090
+```
+
+---
+
+## Part 5: Turn Off to Save Money
+
+### Option 1: Scale Down (Keeps cluster, no compute costs)
+
+**When to use:** Short breaks (hours to days)
+
+```powershell
+# Scale all deployments to 0 replicas
+kubectl scale deployment --all --replicas=0 -n bookstore
+
+# Your cluster stays, but no pods are running
+# Cost: ~$2-3/day for cluster management only
+```
+
+**To turn back on:**
+```powershell
+# Scale back up
+kubectl scale deployment --all --replicas=1 -n bookstore
+```
+
+### Option 2: Delete Cluster (Complete shutdown)
+
+**When to use:** Long breaks (weeks to months)
+
+```powershell
+# Delete the entire cluster
+gcloud container clusters delete bookstore-cluster --zone=us-central1-a
+
+# Confirm when prompted: Y
+
+# Cost: $0/day
+```
+
+**To turn back on:**
+```powershell
+# Re-run the deployment script
+bash gke-setup.sh
+
+# Then reconfigure domain (Steps 3.3-3.6)
+```
+
+### Option 3: Pause Cluster (Not available in standard GKE)
+
+GKE doesn't have a "pause" feature, so use Option 1 or 2.
+
+### Important: Release Static IP (if deleting cluster)
+
+```powershell
+# Release the static IP to avoid charges
+gcloud compute addresses delete bookstore-static-ip --region=us-central1
+
+# Cost saved: ~$0.01/hour ($7/month)
+```
+
+---
+
+## Cost Breakdown
+
+### Monthly Costs (if running 24/7)
+
+| Component | Cost/Month | Notes |
+|-----------|------------|-------|
+| **GKE Cluster Management** | $73 | Fixed cost for cluster |
+| **2x e2-medium nodes** | ~$96 | 2 vCPUs, 4GB RAM each |
+| **Static IP** | ~$7 | While reserved |
+| **Load Balancer** | ~$18 | For Ingress |
+| **Network Egress** | ~$5-10 | Data transfer out |
+| **Persistent Disks** | ~$10 | For MySQL storage |
+| **TOTAL** | **~$209/month** | If running continuously |
+
+### Cost Optimization Strategies
+
+1. **Use Free Credits**
+   - $300 free for 90 days
+   - Covers ~1.5 months of full operation
+
+2. **Scale Down When Not Using**
+   - Reduces to ~$80/month (just cluster + storage)
+
+3. **Delete Cluster When Not Needed**
+   - $0/month
+   - Can redeploy anytime
+
+4. **Use Smaller Nodes**
+   - Change to `e2-small`: Saves ~$48/month
+   - May be slower but works for testing
+
+5. **Use Preemptible Nodes**
+   - 80% cheaper but can be shut down anytime
+   - Good for development/testing
+
+### Recommended Approach for Students
+
+1. **Deploy and test:** Use free credits
+2. **Demo day:** Turn on cluster
+3. **After demo:** Delete cluster
+4. **Total cost:** $0 (within free credits)
+
+---
+
+## Troubleshooting
+
+### Issue: "gcloud: command not found"
+
+**Solution:**
+```powershell
+# Restart PowerShell
+# Or add to PATH manually:
+$env:Path += ";C:\Program Files (x86)\Google\Cloud SDK\google-cloud-sdk\bin"
+```
+
+### Issue: Pods stuck in "Pending" state
+
+**Solution:**
+```powershell
+# Check pod details
+kubectl describe pod <pod-name> -n bookstore
+
+# Common causes:
+# 1. Insufficient resources - scale down other pods
+# 2. Image pull errors - check image names
+# 3. Node not ready - wait a few minutes
+```
+
+### Issue: SSL Certificate not ready
+
+**Solution:**
+```powershell
+# Check certificate status
+kubectl describe certificate bookstore-tls -n bookstore
+
+# Common causes:
+# 1. DNS not propagated - wait longer
+# 2. HTTP-01 challenge failed - check Ingress
+# 3. Rate limit - wait 1 hour
+
+# Force renewal:
+kubectl delete certificate bookstore-tls -n bookstore
+kubectl apply -f k8s/ingress.yaml
+```
+
+### Issue: "Insufficient quota" error
+
+**Solution:**
+1. Go to: https://console.cloud.google.com/iam-admin/quotas
+2. Search for "CPUs" or "In-use IP addresses"
+3. Request quota increase
+4. Or use a different region
+
+### Issue: Domain shows "404 Not Found"
+
+**Solution:**
+```powershell
+# Check Ingress
+kubectl describe ingress bookstore-ingress -n bookstore
+
+# Check frontend service
+kubectl get svc frontend-node-service -n bookstore
+
+# Check frontend pods
+kubectl get pods -n bookstore -l app=frontend
+
+# Restart frontend
+kubectl rollout restart deployment/frontend-deployment -n bookstore
+```
+
+### Issue: High costs
+
+**Solution:**
+```powershell
+# Check current costs
+# Go to: https://console.cloud.google.com/billing
+
+# Scale down immediately
+kubectl scale deployment --all --replicas=0 -n bookstore
+
+# Or delete cluster
+gcloud container clusters delete bookstore-cluster --zone=us-central1-a
+```
+
+---
+
+## Quick Reference Commands
+
+### Check Status
+```powershell
+# All pods
+kubectl get pods -n bookstore
+
+# All services
+kubectl get svc -n bookstore
+
+# Ingress
+kubectl get ingress -n bookstore
+
+# Certificates
+kubectl get certificate -n bookstore
+```
+
+### View Logs
+```powershell
+# Specific pod
+kubectl logs <pod-name> -n bookstore
+
+# Follow logs
+kubectl logs -f <pod-name> -n bookstore
+
+# Previous crashed container
+kubectl logs <pod-name> -n bookstore --previous
+```
+
+### Restart Services
+```powershell
+# Restart specific deployment
+kubectl rollout restart deployment/<deployment-name> -n bookstore
+
+# Restart all
+kubectl rollout restart deployment --all -n bookstore
+```
+
+### Access Services Locally
+```powershell
+# Frontend
+kubectl port-forward svc/frontend-node-service -n bookstore 3000:80
+
+# API Gateway
+kubectl port-forward svc/bookstore-zuul-api-gateway-server -n bookstore 8765:8765
+
+# Grafana
+kubectl port-forward svc/bookstore-graphana -n bookstore 3030:3000
+```
+
+---
+
+## Next Steps
+
+After successful deployment:
+
+1. ✅ **Test thoroughly** - Try all features
+2. ✅ **Set up monitoring** - Configure Grafana dashboards
+3. ✅ **Configure backups** - For MySQL database
+4. ✅ **Set up CI/CD** - Automate deployments
+5. ✅ **Add custom features** - Enhance your app
+6. ✅ **Monitor costs** - Check billing regularly
+
+---
+
+## Support Resources
+
+- **GKE Documentation:** https://cloud.google.com/kubernetes-engine/docs
+- **kubectl Cheat Sheet:** https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+- **cert-manager Docs:** https://cert-manager.io/docs/
+- **GCP Pricing Calculator:** https://cloud.google.com/products/calculator
+- **GCP Free Tier:** https://cloud.google.com/free
+
+---
+
+## Summary Checklist
+
+- [ ] Created Google Cloud account with free credits
+- [ ] Created GCP project and noted Project ID
+- [ ] Installed gcloud CLI and kubectl
+- [ ] Deployed GKE cluster
+- [ ] Verified all pods are running
+- [ ] Reserved static IP address
+- [ ] Configured DNS in GoDaddy
+- [ ] Installed cert-manager and applied configs
+- [ ] Verified SSL certificate is ready
+- [ ] Accessed application at https://bookscar.store
+- [ ] Tested application features
+- [ ] Know how to turn off to save money
+
+**Congratulations! 🎉** Your BookStore application is now live on Google Cloud with your custom domain!
+
+---
+
+**💡 Pro Tip:** Set a billing alert in GCP Console to get notified if costs exceed $10/month. Go to: https://console.cloud.google.com/billing/alerts

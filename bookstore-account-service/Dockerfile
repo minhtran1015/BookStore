@@ -2,6 +2,10 @@ FROM amazoncorretto:8-alpine-jre
 
 VOLUME /tmp
 
+FROM amazoncorretto:8-alpine-jre
+
+VOLUME /tmp
+
 # Add non-root user for security
 RUN addgroup -g 1001 -S appuser && adduser -u 1001 -S appuser -G appuser
 
@@ -10,6 +14,7 @@ COPY dockerize dockerize
 
 # Create Logs directory for logback and change ownership to non-root user
 RUN mkdir -p /Logs && \
+    chmod +x dockerize && \
     chown -R appuser:appuser /account-service.jar /dockerize /Logs
 USER appuser
 

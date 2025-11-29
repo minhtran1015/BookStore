@@ -1,0 +1,59 @@
+steps:
+  # Build JARs
+  - name: 'maven:3.6.3-jdk-8'
+    entrypoint: 'mvn'
+    args: ['clean', 'package', '-Dmaven.test.skip=true']
+
+  # Build and Push Account Service
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/my-third-project-479302/bookstore-account-service:latest', './bookstore-account-service']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/my-third-project-479302/bookstore-account-service:latest']
+
+  # Build and Push Billing Service
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/my-third-project-479302/bookstore-billing-service:latest', './bookstore-billing-service']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/my-third-project-479302/bookstore-billing-service:latest']
+
+  # Build and Push Catalog Service
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/my-third-project-479302/bookstore-catalog-service:latest', './bookstore-catalog-service']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/my-third-project-479302/bookstore-catalog-service:latest']
+
+  # Build and Push Order Service
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/my-third-project-479302/bookstore-order-service:latest', './bookstore-order-service']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/my-third-project-479302/bookstore-order-service:latest']
+
+  # Build and Push Payment Service
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/my-third-project-479302/bookstore-payment-service:latest', './bookstore-payment-service']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/my-third-project-479302/bookstore-payment-service:latest']
+
+  # Deploy to GKE
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args:
+      - 'rollout'
+      - 'restart'
+      - 'deployment'
+      - 'bookstore-account-service'
+      - 'bookstore-billing-service'
+      - 'bookstore-catalog-service'
+      - 'bookstore-order-service'
+      - 'bookstore-payment-service'
+      - '-n'
+      - 'bookstore'
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=bookstore-cluster'
+
+images:
+  - 'gcr.io/my-third-project-479302/bookstore-account-service:latest'
+  - 'gcr.io/my-third-project-479302/bookstore-billing-service:latest'
+  - 'gcr.io/my-third-project-479302/bookstore-catalog-service:latest'
+  - 'gcr.io/my-third-project-479302/bookstore-order-service:latest'
+  - 'gcr.io/my-third-project-479302/bookstore-payment-service:latest'

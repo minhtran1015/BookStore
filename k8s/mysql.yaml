@@ -41,11 +41,11 @@ spec:
         image: mariadb:10.6
         resources:
           requests:
-            memory: "64Mi"
-            cpu: "1m"
+            memory: "256Mi"
+            cpu: "100m"
           limits:
-            memory: "128Mi"
-            cpu: "5m"
+            memory: "512Mi"
+            cpu: "500m"
         ports:
         - containerPort: 3306
         env:

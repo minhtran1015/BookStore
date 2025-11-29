@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { getChatResponse } from '../service/chatService';
 import { fetchBooks, fetchProductReviews } from '../service/bookService';
+import { getCartDetailsApi, getAllMyOrdersApi } from '../service/RestApiCalls';
 import '../BookChatbot.css';
 
 const BOT_NAME = 'BookBot';
@@ -29,15 +30,17 @@ const BookChatbot = () => {
   const [messages, setMessages] = useState(() => {
     const saved = localStorage.getItem(LOCAL_KEY);
     return saved ? JSON.parse(saved) : [
-      { 
-        sender: BOT_NAME, 
-        text: 'Hello! I\'m your personal book advisor. I can help you find books from our current inventory. What kind of books are you interested in?' 
+      {
+        sender: BOT_NAME,
+        text: 'Hello! I\'m your personal book advisor. I can help you find books from our current inventory. What kind of books are you interested in?'
       }
     ];
   });
   const [loading, setLoading] = useState(false);
   const [books, setBooks] = useState([]);
   const [reviews, setReviews] = useState({});
+  const [cartItems, setCartItems] = useState([]);
+  const [orderHistory, setOrderHistory] = useState([]);
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -45,7 +48,7 @@ const BookChatbot = () => {
       try {
         const allBooks = await fetchBooks();
         setBooks(allBooks);
-        
+
         // Fetch reviews for each book
         const reviewsPromises = allBooks.map(async (book) => {
           try {
@@ -64,7 +67,24 @@ const BookChatbot = () => {
         console.error('Error loading books:', error);
       }
     };
+
+    const loadUserData = async () => {
+      try {
+        const userInfo = localStorage.getItem('userInfo');
+        if (userInfo) {
+          const cartData = await getCartDetailsApi();
+          setCartItems(cartData.cartItems || []);
+
+          const ordersData = await getAllMyOrdersApi();
+          setOrderHistory(ordersData || []);
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      }
+    };
+
     loadBooks();
+    loadUserData();
   }, []);
 
   useEffect(() => {
@@ -77,7 +97,7 @@ const BookChatbot = () => {
   const handleSend = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
-    
+
     const userMsg = { sender: USER_NAME, text: input };
     setMessages((msgs) => [...msgs, userMsg]);
     setInput('');
@@ -95,12 +115,12 @@ const BookChatbot = () => {
         reviews: reviews[book.productId] || []
       }));
 
-      const botReply = await getChatResponse([...messages, userMsg], booksContext);
+      const botReply = await getChatResponse([...messages, userMsg], booksContext, cartItems, orderHistory);
       setMessages((msgs) => [...msgs, { sender: BOT_NAME, text: botReply }]);
     } catch (error) {
       console.error('Error getting chat response:', error);
       let errorMessage = 'Sorry, I\'m having trouble connecting. Please try again later.';
-      
+
       if (error.response?.status === 400) {
         errorMessage = 'Sorry, I couldn\'t process your request. Please try rephrasing your question.';
       } else if (error.response?.status === 401) {
@@ -108,9 +128,9 @@ const BookChatbot = () => {
       } else if (error.response?.status === 429) {
         errorMessage = 'Sorry, I\'m getting too many requests. Please try again in a few minutes.';
       }
-      
-      setMessages((msgs) => [...msgs, { 
-        sender: BOT_NAME, 
+
+      setMessages((msgs) => [...msgs, {
+        sender: BOT_NAME,
         text: errorMessage
       }]);
     } finally {
@@ -223,4 +243,4 @@ const BookChatbot = () => {
   );
 };
 
-export default BookChatbot; 
+export default BookChatbot;

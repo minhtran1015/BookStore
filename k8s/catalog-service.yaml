@@ -20,35 +20,41 @@ spec:
     spec:
       containers:
       - name: catalog
-        image: gcr.io/lyrical-tooling-475815-i8/bookstore-catalog-service:latest
+        image: gcr.io/my-third-project-479302/bookstore-catalog-service:latest
         resources:
           requests:
-            memory: "64Mi"
-            cpu: "10m"
+            memory: "256Mi"
+            cpu: "100m"
           limits:
-            memory: "128Mi"
-            cpu: "50m"
+            memory: "1Gi"
+            cpu: "1000m"
         ports:
-        - containerPort: 6001
+        - containerPort: 3001
+        startupProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 3001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 30
         livenessProbe:
           httpGet:
             path: /actuator/health/liveness
-            port: 6001
-          initialDelaySeconds: 60
+            port: 3001
           periodSeconds: 30
           timeoutSeconds: 10
-          failureThreshold: 3
+          failureThreshold: 5
         readinessProbe:
           httpGet:
             path: /actuator/health/readiness
-            port: 6001
+            port: 3001
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
-          failureThreshold: 3
+          failureThreshold: 5
         env:
         - name: SERVER_PORT
-          value: "6001"
+          value: "3001"
         - name: ZIPKIN_HOST
           value: "bookstore-zipkin:9411"
         - name: SPRING_PROFILES_ACTIVE
@@ -62,8 +68,8 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 6001
-      targetPort: 6001
+    - port: 3001
+      targetPort: 3001
       nodePort: 30006
   selector:
     app: bookstore-catalog-service 
