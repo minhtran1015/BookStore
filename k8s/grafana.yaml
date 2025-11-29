@@ -23,7 +23,7 @@ data:
       type: prometheus
       uid: PBFA97CFB590B2093
       access: proxy
-      url: http://bookstore-prometheus:9090
+      url: http://bookstore-prometheus:9090/prometheus
       isDefault: true
 ---
 apiVersion: v1
