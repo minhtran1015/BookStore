@@ -22,72 +22,44 @@ const Product = (props) => {
           />
         </Link>
         
-        {/* Overlay khi hover */}
-        <div className="product-overlay">
-          <Link to={`/product/${product.productId}`} className="view-details-btn">
-            <i className="fas fa-search"></i> Xem chi tiết
-          </Link>
-        </div>
-        
-        {/* Badges */}
-        <div className="product-badges">
-          {product.isNew && <div className="product-badge new-badge">Mới</div>}
-          {isBestSeller && <div className="product-badge bestseller-badge">Best Seller</div>}
-          {product.availableItemCount <= 5 && product.availableItemCount > 0 && 
-            <div className="product-badge limited-badge">Sắp hết hàng</div>}
-        </div>
+        {/* Simple badge for bestseller only */}
+        {isBestSeller && (
+          <div className="product-badge">
+            <i className="fas fa-star"></i>
+          </div>
+        )}
       </div>
       
       <div className="product-body">
-        {product.productCategory && (
-          <div className="product-category">{product.productCategory}</div>
-        )}
-        
-<h3 
-  className="product-title" 
-  title={product.productName}
-  data-truncated={product.productName.length > 50 ? "true" : "false"}
->
-  <Link to={`/product/${product.productId}`}>
-    {product.productName}
-  </Link>
-</h3>
-        
-        {/* Thêm thông tin tác giả nếu có */}
-        {product.author && (
-          <div className="product-author">
-            <i className="fas fa-pen-fancy"></i> {product.author}
-          </div>
-        )}
+        <h3 className="product-title">
+          <Link to={`/product/${product.productId}`}>
+            {product.productName}
+          </Link>
+        </h3>
         
         <div className="product-rating">
-          <Rating 
-            value={product.averageRating} 
-            text={`${product.noOfRatings} đánh giá`} 
-          />
+          <Rating value={product.averageRating} />
+          <span className="rating-count">({product.noOfRatings})</span>
         </div>
         
         <div className="product-price">
+          <span className="price">${product.price}</span>
           {product.oldPrice && product.oldPrice > product.price && (
-            <span className="product-old-price">${product.oldPrice}</span>
+            <span className="old-price">${product.oldPrice}</span>
           )}
-          <span className="product-price-currency">$</span>
-          <span className="product-price-value">{product.price}</span>
         </div>
         
         <div className="product-footer">
-          <Link to={`/product/${product.productId}`} className="product-details-link">
-            <i className="fas fa-book"></i> Chi tiết
+          <div className="product-stock">
+            {product.availableItemCount > 0 ? (
+              <span className="in-stock">Còn hàng</span>
+            ) : (
+              <span className="out-of-stock">Hết hàng</span>
+            )}
+          </div>
+          <Link to={`/product/${product.productId}`} className="view-detail-icon">
+            <i className="fas fa-arrow-right"></i>
           </Link>
-          {product.availableItemCount > 0 ? (
-            <span className="product-in-stock">
-              <i className="fas fa-check-circle"></i> Còn hàng
-            </span>
-          ) : (
-            <span className="product-out-of-stock">
-              <i className="fas fa-times-circle"></i> Hết hàng
-            </span>
-          )}
         </div>
       </div>
     </Card>

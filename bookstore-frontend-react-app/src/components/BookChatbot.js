@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { getChatResponse } from '../service/chatService';
 import { fetchBooks, fetchProductReviews } from '../service/bookService';
+import { getAllMyOrdersApi, getCartDetailsApi } from '../service/RestApiCalls';
 import '../BookChatbot.css';
 
 const BOT_NAME = 'BookBot';
@@ -24,6 +26,7 @@ const MessengerIcon = () => (
 
 const BookChatbot = () => {
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [input, setInput] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [messages, setMessages] = useState(() => {
@@ -31,14 +34,20 @@ const BookChatbot = () => {
     return saved ? JSON.parse(saved) : [
       { 
         sender: BOT_NAME, 
-        text: 'Hello! I\'m your personal book advisor. I can help you find books from our current inventory. What kind of books are you interested in?' 
+        text: 'Hello! I\'m your personal book advisor and customer service assistant. I can help you:\n\n📚 Find and recommend books from our inventory\n📦 Answer questions about orders and shipping\n💳 Explain our ordering process and payment methods\n🔍 Check your order status (if logged in)\n\nWhat can I help you with today?' 
       }
     ];
   });
   const [loading, setLoading] = useState(false);
   const [books, setBooks] = useState([]);
   const [reviews, setReviews] = useState({});
+  const [userOrders, setUserOrders] = useState(null);
+  const [userCart, setUserCart] = useState(null);
   const chatEndRef = useRef(null);
+
+  // Get user login status from Redux store
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
 
   useEffect(() => {
     const loadBooks = async () => {
@@ -66,6 +75,64 @@ const BookChatbot = () => {
     };
     loadBooks();
   }, []);
+
+  // Load user orders when logged in
+  useEffect(() => {
+    const loadUserOrders = async () => {
+      if (userInfo) {
+        try {
+          const orders = await getAllMyOrdersApi();
+          setUserOrders({
+            isLoggedIn: true,
+            orders: orders
+          });
+        } catch (error) {
+          console.error('Error loading user orders:', error);
+          setUserOrders({
+            isLoggedIn: true,
+            orders: []
+          });
+        }
+      } else {
+        setUserOrders({
+          isLoggedIn: false,
+          orders: []
+        });
+      }
+    };
+    loadUserOrders();
+  }, [userInfo]);
+
+  // Load user cart when logged in
+  useEffect(() => {
+    const loadUserCart = async () => {
+      if (userInfo) {
+        try {
+          const cartData = await getCartDetailsApi();
+          setUserCart({
+            isLoggedIn: true,
+            cartItems: cartData.cartItems || [],
+            totalAmount: cartData.cartItems?.reduce((sum, item) => 
+              sum + (item.price * item.quantity), 0) || 0
+          });
+        } catch (error) {
+          console.error('Error loading user cart:', error);
+          setUserCart({
+            isLoggedIn: true,
+            cartItems: [],
+            totalAmount: 0
+          });
+        }
+      } else {
+        setUserCart({
+          isLoggedIn: false,
+          cartItems: [],
+          totalAmount: 0
+        });
+      }
+    };
+    loadUserCart();
+  }, [userInfo]);
 
   useEffect(() => {
     localStorage.setItem(LOCAL_KEY, JSON.stringify(messages));
@@ -95,7 +162,7 @@ const BookChatbot = () => {
         reviews: reviews[book.productId] || []
       }));
 
-      const botReply = await getChatResponse([...messages, userMsg], booksContext);
+      const botReply = await getChatResponse([...messages, userMsg], booksContext, userOrders, userCart);
       setMessages((msgs) => [...msgs, { sender: BOT_NAME, text: botReply }]);
     } catch (error) {
       console.error('Error getting chat response:', error);
@@ -125,18 +192,56 @@ const BookChatbot = () => {
   const confirmClearHistory = () => {
     const initialMessage = {
       sender: BOT_NAME,
-      text: 'Hello! I\'m your personal book advisor. I can help you find books from our current inventory. What kind of books are you interested in?'
+      text: 'Hello! I\'m your personal book advisor and customer service assistant. I can help you:\n\n📚 Find and recommend books from our inventory\n📦 Answer questions about orders and shipping\n💳 Explain our ordering process and payment methods\n🔍 Check your order status (if logged in)\n\nWhat can I help you with today?'
     };
     setMessages([initialMessage]);
     localStorage.setItem(LOCAL_KEY, JSON.stringify([initialMessage]));
     setShowConfirmModal(false);
   };
 
+  // Format bot message để hiển thị đẹp hơn
+  const formatBotMessage = (text) => {
+    if (!text) return text;
+    
+    // Convert markdown-style formatting
+    let formatted = text
+      // Bold text **text** or __text__
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/__(.+?)__/g, '<strong>$1</strong>')
+      // Italic text *text* or _text_
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/_(.+?)_/g, '<em>$1</em>')
+      // Bullet points starting with - or * or •
+      .replace(/^[\-\*•]\s+(.+)$/gm, '<li>$1</li>')
+      // Numbered lists
+      .replace(/^(\d+)\.\s+(.+)$/gm, '<li>$2</li>')
+      // Headers
+      .replace(/^#{1,3}\s+(.+)$/gm, '<strong>$1</strong><br/>')
+      // Line breaks (double newline = paragraph)
+      .replace(/\n\n/g, '</p><p>')
+      // Single line breaks
+      .replace(/\n/g, '<br/>');
+    
+    // Wrap consecutive <li> tags in <ul>
+    formatted = formatted.replace(/(<li>.*?<\/li>)(\s*<li>.*?<\/li>)*/g, (match) => {
+      return '<ul>' + match + '</ul>';
+    });
+    
+    // Wrap in paragraph if not already wrapped
+    if (!formatted.startsWith('<')) {
+      formatted = '<p>' + formatted + '</p>';
+    } else if (!formatted.startsWith('<p>') && !formatted.startsWith('<ul>') && !formatted.startsWith('<strong>')) {
+      formatted = '<p>' + formatted + '</p>';
+    }
+    
+    return formatted;
+  };
+
   const cancelClearHistory = () => {
     setShowConfirmModal(false);
   };
 
-  return React.createElement('div', { className: `book-chatbot-widget${open ? ' open' : ''}` },
+  return React.createElement('div', { className: `book-chatbot-widget${open ? ' open' : ''}${expanded ? ' expanded' : ''}` },
     open ? React.createElement('div', { className: 'book-chatbot-box' },
       React.createElement('div', { className: 'book-chatbot-header' },
         React.createElement('div', { className: 'book-chatbot-header-left' },
@@ -144,6 +249,11 @@ const BookChatbot = () => {
           React.createElement('span', { className: 'book-chatbot-title' }, 'BookBot')
         ),
         React.createElement('div', { className: 'book-chatbot-header-buttons' },
+          React.createElement('button', {
+            className: 'book-chatbot-expand',
+            onClick: () => setExpanded(!expanded),
+            title: expanded ? 'Minimize' : 'Maximize'
+          }, expanded ? '🗗' : '🗖'),
           React.createElement('button', {
             className: 'book-chatbot-clear',
             onClick: handleClearHistory,
@@ -164,7 +274,11 @@ const BookChatbot = () => {
           React.createElement('div', { className: 'book-chatbot-msg-content' },
             React.createElement('b', null, `${msg.sender}:`),
             ' ',
-            msg.text
+            msg.sender === BOT_NAME 
+              ? React.createElement('span', { 
+                  dangerouslySetInnerHTML: { __html: formatBotMessage(msg.text) } 
+                })
+              : msg.text
           )
         )),
         loading && React.createElement('div', { className: 'book-chatbot-msg bot' },

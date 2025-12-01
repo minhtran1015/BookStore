@@ -18,6 +18,7 @@ const ProductScreen = (props) => {
   const [reviewMessage, setReviewMessage] = useState('');
   const [productimageBase64, setProductimageBase64] = useState(null);
   const [product, setProduct] = useState(null);
+  const [showAddedMessage, setShowAddedMessage] = useState(false);
 
   const dispatch = useDispatch();
   const productDetails = useSelector((state) => state.productDetails);
@@ -47,7 +48,14 @@ const ProductScreen = (props) => {
       productId: props.match.params.id,
       quantity: qty
     }));
-    props.history.push('/cart');
+    
+    // Hiển thị thông báo thành công
+    setShowAddedMessage(true);
+    
+    // Ẩn thông báo sau 3 giây
+    setTimeout(() => {
+      setShowAddedMessage(false);
+    }, 3000);
   };
 
   const createProductReviewHandler = (e) => {
@@ -162,6 +170,12 @@ const ProductScreen = (props) => {
                     )}
 
                     <ListGroupItem className="action-item">
+                      {showAddedMessage && (
+                        <div className="cart-success-message">
+                          <i className="fas fa-check-circle"></i>
+                          Đã thêm vào giỏ hàng thành công!
+                        </div>
+                      )}
                       <Button 
                         onClick={addToCartHandler} 
                         className='add-to-cart-btn' 

@@ -1,18 +1,23 @@
 .home-screen {
-  padding: 4rem 0 40px;
+  padding: 2rem 0 40px;
   min-height: 100vh;
+  max-width: 100%;
+  width: 100%;
+  margin: 0;
   background: linear-gradient(135deg, var(--very-light-blue) 0%, var(--background-primary) 100%);
 }
 
 .home-header {
   text-align: center;
-  margin-bottom: 80px;
+  margin-bottom: 60px;
   position: relative;
-  padding: 60px 20px;
+  padding: 40px 20px;
   background: var(--background-primary);
   border-radius: 24px;
   box-shadow: var(--shadow-lg);
-  margin: 0 20px 80px;
+  margin: 0 auto 60px;
+  max-width: 1200px;
+  width: calc(100% - 40px);
 }
 
 .home-header h1 {
@@ -78,10 +83,15 @@
 .product-grid {
   margin-bottom: 50px;
   position: relative;
+  width: 100%;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 15px;
 }
 
 .product-card-wrapper {
-  padding: 15px;
+  padding: 10px;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -422,7 +432,7 @@
   flex-wrap: wrap;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 8rem 15px 20px;
+  padding: 100px 15px 20px;
   width: 100%;
 }
 
@@ -576,6 +586,154 @@
   .category-button span {
     font-size: 0.8rem;
     line-height: 1.2;
+  }
+}
+
+/* Books Carousel Styles */
+.product-carousel-container {
+  margin: 40px 0;
+  padding: 0 20px;
+}
+
+.books-carousel {
+  background: transparent;
+  border-radius: 0;
+  padding: 20px 0;
+  box-shadow: none;
+  border: none;
+  position: relative;
+}
+
+.books-carousel .carousel-control-prev,
+.books-carousel .carousel-control-next {
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border-radius: 50%;
+  border: none;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.6;
+  transition: all 0.3s ease;
+  box-shadow: none;
+  z-index: 10;
+}
+
+.books-carousel .carousel-control-prev {
+  left: -20px;
+}
+
+.books-carousel .carousel-control-next {
+  right: -20px;
+}
+
+.books-carousel .carousel-control-prev:hover,
+.books-carousel .carousel-control-next:hover {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.2);
+  box-shadow: none;
+}
+
+.books-carousel .carousel-control-prev-icon,
+.books-carousel .carousel-control-next-icon {
+  width: 18px;
+  height: 18px;
+  filter: brightness(0) invert(0.4);
+  transition: all 0.3s ease;
+}
+
+.books-carousel .carousel-control-prev:hover .carousel-control-prev-icon,
+.books-carousel .carousel-control-next:hover .carousel-control-next-icon {
+  filter: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(197deg) brightness(104%) contrast(97%);
+}
+
+/* Ẩn text next/prev, chỉ hiển thị icons */
+.books-carousel .carousel-control-prev span:not(.carousel-control-prev-icon),
+.books-carousel .carousel-control-next span:not(.carousel-control-next-icon) {
+  display: none !important;
+}
+
+.books-carousel .sr-only {
+  display: none !important;
+}
+
+.carousel-row {
+  margin: 0;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+}
+
+.carousel-row .product-card-wrapper {
+  padding: 0 15px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Responsive carousel */
+@media (max-width: 1200px) {
+  .books-carousel .carousel-control-prev,
+  .books-carousel .carousel-control-next {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .books-carousel .carousel-control-prev {
+    left: -25px;
+  }
+  
+  .books-carousel .carousel-control-next {
+    right: -25px;
+  }
+}
+
+@media (max-width: 768px) {
+  .books-carousel {
+    padding: 20px 15px;
+  }
+  
+  .books-carousel .carousel-control-prev,
+  .books-carousel .carousel-control-next {
+    width: 32px;
+    height: 32px;
+    top: -16px;
+  }
+  
+  .books-carousel .carousel-control-prev {
+    left: auto;
+    right: 50px;
+  }
+  
+  .books-carousel .carousel-control-next {
+    right: 10px;
+  }
+  
+  .books-carousel .carousel-control-prev-icon,
+  .books-carousel .carousel-control-next-icon {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .carousel-row {
+    min-height: 350px;
+  }
+  
+  .carousel-row .product-card-wrapper {
+    padding: 0 8px;
+  }
+  
+  .home-screen {
+    padding: 1rem 0 40px;
+  }
+  
+  .home-header {
+    padding: 30px 15px;
+    margin-bottom: 40px;
+    width: calc(100% - 30px);
+  }
+  
+  .product-grid {
+    padding: 0 10px;
   }
 }
 

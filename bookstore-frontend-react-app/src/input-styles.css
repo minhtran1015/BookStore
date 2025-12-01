@@ -5,18 +5,19 @@
 input,
 textarea,
 select {
-  padding: 0.7rem 1rem !important;
-  min-height: 48px !important;
+  padding: 0.75rem 1rem !important;
+  min-height: 50px !important;
   border: 2px solid #e2e8f0 !important;
   border-radius: 12px !important;
   background-color: #ffffff !important;
-  color: #1e293b !important;
-  font-size: 1rem !important;
-  font-weight: 500 !important;
+  color: #1f2937 !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 400 !important;
   line-height: 1.5 !important;
+  letter-spacing: -0.01em !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }
 
 /* Focus states with beautiful blue accent */

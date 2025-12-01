@@ -57,17 +57,136 @@ const ProductListScreen = ({ history, match }) => {
     product.productCategory.toLowerCase().includes(searchTerm.toLowerCase())
   ) : [];
 
+  // Calculate statistics
+  const totalProductTypes = products?.length || 0;
+  const totalBooks = products?.reduce((sum, p) => sum + p.availableItemCount, 0) || 0;
+  const inStockProducts = products?.filter(p => p.availableItemCount > 0).length || 0;
+  const outOfStockProducts = products?.filter(p => p.availableItemCount === 0).length || 0;
+  const lowStockProducts = products?.filter(p => p.availableItemCount > 0 && p.availableItemCount < 10).length || 0;
+  const totalInventoryValue = products?.reduce((sum, p) => sum + (p.price * p.availableItemCount), 0) || 0;
+  const averagePrice = totalProductTypes > 0 ? (products?.reduce((sum, p) => sum + p.price, 0) / totalProductTypes) : 0;
+
   return (
     <Container className="product-list-screen">
+      {/* Page Header */}
+      <div className="page-header">
+        <div className="header-content">
+          <div className="header-icon">
+            <i className="fas fa-boxes"></i>
+          </div>
+          <div className="header-text">
+            <h1>Quản lý sản phẩm</h1>
+            <p>Quản lý toàn bộ sản phẩm và theo dõi kho hàng</p>
+          </div>
+        </div>
+        <Button className="create-product-btn" onClick={createProductHandler}>
+          <i className="fas fa-plus"></i> Thêm sản phẩm
+        </Button>
+      </div>
+
+      {/* Analytics Cards */}
+      <Row className="analytics-section mb-4">
+        <Col lg={3} md={6} className="mb-3">
+          <Card className="analytics-card total-products">
+            <Card.Body>
+              <div className="analytics-icon">
+                <i className="fas fa-books"></i>
+              </div>
+              <div className="analytics-content">
+                <h3>{totalBooks}</h3>
+                <p>Tổng số lượng sách</p>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+        
+        <Col lg={3} md={6} className="mb-3">
+          <Card className="analytics-card in-stock">
+            <Card.Body>
+              <div className="analytics-icon">
+                <i className="fas fa-check-circle"></i>
+              </div>
+              <div className="analytics-content">
+                <h3>{inStockProducts}</h3>
+                <p>Loại sách còn hàng</p>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+        
+        <Col lg={3} md={6} className="mb-3">
+          <Card className="analytics-card out-of-stock">
+            <Card.Body>
+              <div className="analytics-icon">
+                <i className="fas fa-exclamation-triangle"></i>
+              </div>
+              <div className="analytics-content">
+                <h3>{outOfStockProducts}</h3>
+                <p>Loại sách hết hàng</p>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+        
+        <Col lg={3} md={6} className="mb-3">
+          <Card className="analytics-card low-stock">
+            <Card.Body>
+              <div className="analytics-icon">
+                <i className="fas fa-box"></i>
+              </div>
+              <div className="analytics-content">
+                <h3>{lowStockProducts}</h3>
+                <p>Loại sách sắp hết (&lt;10)</p>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Additional Stats */}
+      <Row className="stats-section mb-4">
+        <Col md={6} className="mb-3">
+          <Card className="stats-card">
+            <Card.Body>
+              <div className="stats-info">
+                <div className="stats-icon inventory">
+                  <i className="fas fa-dollar-sign"></i>
+                </div>
+                <div className="stats-details">
+                  <h4>${totalInventoryValue.toFixed(2)}</h4>
+                  <p>Tổng giá trị kho hàng</p>
+                </div>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+        
+        <Col md={6} className="mb-3">
+          <Card className="stats-card">
+            <Card.Body>
+              <div className="stats-info">
+                <div className="stats-icon average">
+                  <i className="fas fa-chart-line"></i>
+                </div>
+                <div className="stats-details">
+                  <h4>${averagePrice.toFixed(2)}</h4>
+                  <p>Giá trung bình mỗi sản phẩm</p>
+                </div>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+      
       <Card className="product-list-card">
         <Card.Body>
           <Row className="align-items-center mb-4">
-            <Col>
-              <h1 className="product-list-title">
-                <i className="fas fa-book admin-icon"></i> Quản lý sản phẩm
-              </h1>
+            <Col md={6}>
+              <h2 className="section-title">
+                <i className="fas fa-list"></i> Danh sách sản phẩm
+              </h2>
             </Col>
-            <Col md={4}>
+            <Col md={6}>
               <InputGroup className="search-input-group">
                 <InputGroup.Text className="search-icon">
                   <i className="fas fa-search"></i>
@@ -89,11 +208,6 @@ const ProductListScreen = ({ history, match }) => {
                   </Button>
                 )}
               </InputGroup>
-            </Col>
-            <Col md={3} className="text-right">
-              <Button className="create-product-btn" onClick={createProductHandler}>
-                <i className="fas fa-plus"></i> Thêm sản phẩm mới
-              </Button>
             </Col>
           </Row>
           

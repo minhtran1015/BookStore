@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Product from '../components/Product';
 import Message from '../components/Message';
-import { Col, Row, Container, Button } from 'react-bootstrap';
+import { Col, Row, Container, Button, Carousel } from 'react-bootstrap';
 import { listProductsAction } from '../actions/productActions';
 import FullPageLoader from '../components/FullPageLoader';
 import ReactPaginate from 'react-paginate';
@@ -136,7 +136,7 @@ const HomeScreen = () => {
       </div>
 
     </div>
-    <Container className="home-screen">
+    <Container fluid className="home-screen">
       <div className="home-header">
         <h1>Khám Phá Sách Mới</h1>
         <p>Thế giới tri thức trong tay bạn với những cuốn sách chất lượng nhất</p>
@@ -149,7 +149,7 @@ const HomeScreen = () => {
       ) : (
         <>
           {products && products.length > 0 ? (
-            <div className="product-grid">
+            <div className="product-carousel-container">
               {keyword && (
                 <div className="search-results-info">
                   <h2 className="section-title">
@@ -163,13 +163,50 @@ const HomeScreen = () => {
                   </button>
                 </div>
               )}
-              <Row>
-                {products.map((product) => (
-                  <Col key={product.productId} sm={12} md={6} lg={4} xl={3} className="product-card-wrapper">
-                    <Product product={product} />
-                  </Col>
-                ))}
-              </Row>
+              
+              <Carousel 
+                interval={null} 
+                controls={true} 
+                indicators={false}
+                className="books-carousel"
+                variant="dark"
+              >
+                {(() => {
+                  // Responsive items per slide
+                  const getItemsPerSlide = () => {
+                    if (window.innerWidth < 768) return 1; // Mobile: 1 item
+                    if (window.innerWidth < 992) return 2; // Tablet: 2 items
+                    if (window.innerWidth < 1200) return 3; // Small desktop: 3 items
+                    return 4; // Large desktop: 4 items
+                  };
+                  
+                  const itemsPerSlide = getItemsPerSlide();
+                  const chunks = [];
+                  for (let i = 0; i < products.length; i += itemsPerSlide) {
+                    chunks.push(products.slice(i, i + itemsPerSlide));
+                  }
+                  
+                  return chunks.map((chunk, index) => (
+                    <Carousel.Item key={index}>
+                      <Row className="carousel-row justify-content-center">
+                        {chunk.map((product) => (
+                          <Col 
+                            key={product.productId} 
+                            xs={12} 
+                            sm={6} 
+                            md={6} 
+                            lg={4} 
+                            xl={3} 
+                            className="product-card-wrapper"
+                          >
+                            <Product product={product} />
+                          </Col>
+                        ))}
+                      </Row>
+                    </Carousel.Item>
+                  ));
+                })()}
+              </Carousel>
             </div>
           ) : !loading && (
             <div className="empty-products">
@@ -194,30 +231,7 @@ const HomeScreen = () => {
             </div>
           )}
 
-          {pageResponse && pageResponse.totalPages > 1 && (
-            <div className="pagination-container">
-              <ReactPaginate
-                previousLabel={<i className="fas fa-chevron-left"></i>}
-                nextLabel={<i className="fas fa-chevron-right"></i>}
-                breakLabel={"..."}
-                breakClassName={"break-me"}
-                pageCount={pageResponse?.totalPages || 1}
-                marginPagesDisplayed={2}
-                pageRangeDisplayed={3}
-                onPageChange={handlePageClick}
-                containerClassName={"custom-pagination"}
-                pageClassName={"page-item"}
-                activeClassName={"active"}
-                pageLinkClassName={"page-link"}
-                previousClassName={"page-item"}
-                nextClassName={"page-item"}
-                previousLinkClassName={"page-link nav-button"}
-                nextLinkClassName={"page-link nav-button"}
-                disabledClassName={"disabled"}
-                forcePage={currentPage}
-              />
-            </div>
-          )}
+
 
         </>
       )}

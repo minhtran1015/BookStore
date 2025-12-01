@@ -125,23 +125,28 @@ const ProductEditScreen = ({ match, history }) => {
   return (
     <div className="product-edit-screen">
       <Container>
-        <Link to='/admin/productlist' className='back-button'>
-          <i className="fas fa-arrow-left"></i> Quay lại danh sách sản phẩm
-        </Link>
-        
+        <div className="page-header">
+          <Link to='/admin/productlist' className='back-button'>
+            <i className="fas fa-arrow-left"></i> Quay lại
+          </Link>
+          <div className="header-content">
+            <div className="header-icon">
+              <i className="fas fa-edit"></i>
+            </div>
+            <div className="header-text">
+              <h1>Chỉnh sửa sản phẩm</h1>
+              <p>Cập nhật thông tin và quản lý sản phẩm</p>
+            </div>
+          </div>
+        </div>
+
         <Card className="product-edit-card">
           <Card.Body>
-            <div className="product-edit-header">
-              <div className="icon-wrapper">
-                <i className="fas fa-edit"></i>
+            {product && product.productName && (
+              <div className="product-name-badge">
+                <i className="fas fa-book"></i> {product.productName}
               </div>
-              <h1>Chỉnh sửa sản phẩm</h1>
-              {product && product.productName && (
-                <div className="product-name-badge">
-                  <i className="fas fa-book"></i> {product.productName}
-                </div>
-              )}
-            </div>
+            )}
             
             {loadingUpdate && <div className="loader-container"><Loader /></div>}
             {errorUpdate && <Message variant='danger'>{errorUpdate}</Message>}
