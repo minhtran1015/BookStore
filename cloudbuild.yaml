@@ -1,0 +1,18 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/my-third-project-479302/bookstore-frontend-react-app:latest', './bookstore-frontend-react-app']
+
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/my-third-project-479302/bookstore-frontend-react-app:latest']
+
+  # Deploy container image to GKE
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args: ['rollout', 'restart', 'deployment', 'frontend-deployment', '-n', 'bookstore']
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=bookstore-cluster'
+
+images:
+  - 'gcr.io/my-third-project-479302/bookstore-frontend-react-app:latest'

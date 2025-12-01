@@ -10,6 +10,40 @@ spec:
     requests:
       storage: 1Gi
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: bookstore
+data:
+  prometheus.yaml: |-
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      uid: PBFA97CFB590B2093
+      access: proxy
+      url: http://bookstore-prometheus:9090/prometheus
+      isDefault: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards-provisioning
+  namespace: bookstore
+data:
+  dashboards.yaml: |-
+    apiVersion: 1
+    providers:
+    - name: 'default'
+      orgId: 1
+      folder: ''
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,6 +51,8 @@ metadata:
   namespace: bookstore
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: bookstore-grafana
@@ -25,9 +61,13 @@ spec:
       labels:
         app: bookstore-grafana
     spec:
+      securityContext:
+        fsGroup: 472
+        runAsUser: 472
+        runAsNonRoot: true
       initContainers:
       - name: init-copy-dashboards
-        image: gcr.io/lyrical-tooling-475815-i8/graphana:latest
+        image: grafana/grafana:latest
         command: ['sh', '-c']
         args:
           - |
@@ -39,15 +79,15 @@ spec:
             else
               echo "No dashboards found in /tmp/dashboards-source or directory does not exist."
             fi
-            echo "Setting permissions..."
-            chmod -R 777 /var/lib/grafana/
             echo "Init container finished."
         volumeMounts:
         - name: grafana-storage
           mountPath: /var/lib/grafana
+        - name: grafana-dashboards
+          mountPath: /tmp/dashboards-source
       containers:
       - name: grafana
-        image: gcr.io/lyrical-tooling-475815-i8/graphana:latest
+        image: grafana/grafana:latest
         resources:
           requests:
             cpu: 50m
@@ -57,13 +97,31 @@ spec:
             memory: 256Mi
         ports:
         - containerPort: 3000
+        env:
+        - name: GF_SERVER_ROOT_URL
+          value: "%(protocol)s://%(domain)s:%(http_port)s/grafana/"
+        - name: GF_SERVER_SERVE_FROM_SUB_PATH
+          value: "true"
         volumeMounts:
         - name: grafana-storage
           mountPath: /var/lib/grafana
+        - name: grafana-datasources
+          mountPath: /etc/grafana/provisioning/datasources
+        - name: grafana-dashboards-provisioning
+          mountPath: /etc/grafana/provisioning/dashboards
       volumes:
       - name: grafana-storage
         persistentVolumeClaim:
           claimName: grafana-pvc
+      - name: grafana-datasources
+        configMap:
+            name: grafana-datasources
+      - name: grafana-dashboards
+        configMap:
+            name: grafana-dashboards
+      - name: grafana-dashboards-provisioning
+        configMap:
+            name: grafana-dashboards-provisioning
 ---
 apiVersion: v1
 kind: Service
@@ -77,4 +135,4 @@ spec:
       targetPort: 3000
       nodePort: 30011
   selector:
-    app: bookstore-grafana 
+    app: bookstore-grafana

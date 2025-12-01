@@ -41,11 +41,11 @@ spec:
         image: mariadb:10.6
         resources:
           requests:
-            memory: "64Mi"
-            cpu: "1m"
+            memory: "256Mi"
+            cpu: "100m"
           limits:
-            memory: "128Mi"
-            cpu: "5m"
+            memory: "512Mi"
+            cpu: "500m"
         ports:
         - containerPort: 3306
         env:
@@ -57,6 +57,13 @@ spec:
           value: "PaSSworD"
         - name: MYSQL_ROOT_PASSWORD
           value: "r00tPaSSworD"
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pvc
 ---
 apiVersion: v1
 kind: Service
@@ -70,4 +77,4 @@ spec:
       targetPort: 3306
       nodePort: 30001
   selector:
-    app: bookstore-mysql-db 
+    app: bookstore-mysql-db

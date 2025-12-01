@@ -20,35 +20,41 @@ spec:
     spec:
       containers:
       - name: zuul
-        image: gcr.io/lyrical-tooling-475815-i8/bookstore-zuul-api-gateway-server:latest
+        image: gcr.io/my-third-project-479302/bookstore-zuul-api-gateway-server:latest
         resources:
           requests:
-            memory: "64Mi"
-            cpu: "10m"
+            memory: "256Mi"
+            cpu: "100m"
           limits:
-            memory: "128Mi"
-            cpu: "50m"
+            memory: "512Mi"
+            cpu: "500m"
         ports:
-        - containerPort: 8765
+        - containerPort: 9000
+        startupProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 9000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 30
         livenessProbe:
           httpGet:
             path: /actuator/health/liveness
-            port: 8765
-          initialDelaySeconds: 60
+            port: 9000
           periodSeconds: 30
           timeoutSeconds: 10
           failureThreshold: 3
         readinessProbe:
           httpGet:
             path: /actuator/health/readiness
-            port: 8765
+            port: 9000
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
         env:
         - name: SERVER_PORT
-          value: "8765"
+          value: "9000"
         - name: ZIPKIN_HOST
           value: "bookstore-zipkin:9411"
         - name: SPRING_PROFILES_ACTIVE
@@ -62,8 +68,8 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 8765
-      targetPort: 8765
+    - port: 9000
+      targetPort: 9000
       nodePort: 30003
   selector:
     app: bookstore-zuul-api-gateway-server 

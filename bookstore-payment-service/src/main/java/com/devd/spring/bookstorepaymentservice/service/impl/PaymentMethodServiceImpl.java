@@ -49,9 +49,9 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
 
         String customerId;
         if (paymentCustomer == null) {
-            //Create Customer at stripe end;
+            // Create Customer at stripe end;
             customerId = createCustomerAtStripe();
-            //save
+            // save
             UserPaymentCustomer userPaymentCustomer = new UserPaymentCustomer();
             userPaymentCustomer.setUserId(userIdFromToken);
             userPaymentCustomer.setUserName(userNameFromToken);
@@ -61,10 +61,10 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
             customerId = paymentCustomer.getPaymentCustomerId();
         }
 
-        //create Payment Method
+        // create Payment Method
         String paymentMethod = createPaymentMethodAtStripe(createPaymentMethodRequest);
 
-        //link customer and Payment Method
+        // link customer and Payment Method
         linkCustomerAndPaymentMethod(paymentMethod, customerId);
 
     }
@@ -80,9 +80,10 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
         UserPaymentCustomer paymentCustomer = userPaymentCustomerRepository.findByUserId(userIdFromToken);
 
         if (paymentCustomer != null) {
-            PaymentMethodCollection paymentMethods = getAllPaymentMethodsForCustomerFromStripe(paymentCustomer.getPaymentCustomerId());
+            PaymentMethodCollection paymentMethods = getAllPaymentMethodsForCustomerFromStripe(
+                    paymentCustomer.getPaymentCustomerId());
 
-            paymentMethods.getData().forEach(pm->{
+            paymentMethods.getData().forEach(pm -> {
                 GetPaymentMethodResponse getPaymentMethodResponse = GetPaymentMethodResponse.builder()
                         .paymentMethodId(pm.getId())
                         .cardCountry(pm.getCard().getCountry())
@@ -110,7 +111,7 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
         try {
             PaymentMethod paymentMethod = PaymentMethod.retrieve(paymentMethodId);
 
-            if(!paymentCustomer.getPaymentCustomerId().equals(paymentMethod.getCustomer())){
+            if (!paymentCustomer.getPaymentCustomerId().equals(paymentMethod.getCustomer())) {
                 throw new RunTimeExceptionPlaceHolder("PaymentMethod doesn't belong to this User");
             }
             GetPaymentMethodResponse getPaymentMethodResponse = GetPaymentMethodResponse.builder()
@@ -185,7 +186,7 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
         // Check if card is expired
         int currentYear = java.time.Year.now().getValue();
         int currentMonth = java.time.MonthDay.now().getMonthValue();
-        
+
         if (expYear < currentYear || (expYear == currentYear && expMonth < currentMonth)) {
             throw new RunTimeExceptionPlaceHolder("Card has expired. Please enter a valid expiration date.");
         }
@@ -195,7 +196,7 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
         card.put("exp_month", expMonth);
         card.put("exp_year", expYear);
         card.put("cvc", createPaymentMethodRequest.getCard().getCvv());
-        
+
         Map<String, Object> params = new HashMap<>();
         params.put("type", "card");
         params.put("card", card);
@@ -214,7 +215,8 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
     private String createCustomerAtStripe() {
         // Check if Stripe API key is configured
         if (Stripe.apiKey == null || Stripe.apiKey.isEmpty() || Stripe.apiKey.contains("your_stripe")) {
-            throw new RunTimeExceptionPlaceHolder("Stripe API key is not configured. Please set STRIPE_API_KEY in your environment variables.");
+            throw new RunTimeExceptionPlaceHolder(
+                    "Stripe API key is not configured. Please set STRIPE_API_KEY in your environment variables.");
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -222,8 +224,7 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
         Map<String, Object> params = new HashMap<>();
         params.put(
                 "description",
-                "Creating Customer Account for UserId : " + userIdFromToken
-        );
+                "Creating Customer Account for UserId : " + userIdFromToken);
 
         try {
             return Customer.create(params).getId();

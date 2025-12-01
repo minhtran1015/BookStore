@@ -218,7 +218,7 @@ Set via `SPRING_PROFILES_ACTIVE` env var (see `application.yml` in each service)
 - **ARM64 vs AMD64 Mismatch:** Apple Silicon Mac builds ARM64 images by default, but GKE nodes are AMD64
   - **Solution:** Use Docker buildx for cross-platform builds: `docker buildx build --platform linux/amd64`
   - **Implementation:** Created `build-amd64.sh` script for all services with `:amd64` tags
-  - **Verification:** All images rebuilt and pushed to GCR as `gcr.io/lyrical-tooling-475815-i8/*:amd64`
+  - **Verification:** All images rebuilt and pushed to GCR as `gcr.io/my-third-project-479302/*:amd64`
 
 #### Database Engine Migration:
 - **MySQL 8.0 Resource Issues:** MySQL 8.0 requires significant memory (256Mi+) and CPU (50m+) for initialization
@@ -249,7 +249,7 @@ Set via `SPRING_PROFILES_ACTIVE` env var (see `application.yml` in each service)
 - **Network Flow:** `Service DNS → ClusterIP → Pod IP → Container Port`
 
 #### Container Registry Migration:
-- **Docker Hub → GCR:** Migrated from Docker Hub (`d1ff1c1le/*`) to Google Container Registry (`gcr.io/lyrical-tooling-475815-i8/*`)
+- **Docker Hub → GCR:** Migrated from Docker Hub (`d1ff1c1le/*`) to Google Container Registry (`gcr.io/my-third-project-479302/*`)
 - **Benefits:** Reduced pull latency, integrated with GCP IAM, no rate limiting
 - **Implementation:** Updated all k8s/*.yaml manifests to reference GCR images with `:amd64` tags
 

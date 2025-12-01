@@ -9,5 +9,6 @@ COPY target/*.jar billing-service.jar
 
 #Using Dokerize to check whether db is up, if it is then start this service.
 COPY dockerize dockerize
+RUN chmod +x dockerize
 
 CMD ./dockerize -wait tcp://bookstore-mysql-db:3306 -timeout 15m java -Djava.security.egd=file:/dev/./urandom -jar /billing-service.jar

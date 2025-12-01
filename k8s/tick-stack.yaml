@@ -1,4 +1,77 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: telegraf-config
+  namespace: bookstore
+data:
+  telegraf.conf: |
+    [agent]
+      interval = "5s"
+      round_interval = true
+      metric_batch_size = 1000
+      metric_buffer_limit = 10000
+      collection_jitter = "0s"
+      flush_interval = "5s"
+      flush_jitter = "0s"
+      precision = ""
+      debug = false
+      quiet = false
+      logfile = ""
+      hostname = "$HOSTNAME"
+      omit_hostname = false
+
+    [[inputs.mem]]
+
+    [[inputs.disk]]
+
+    [[outputs.influxdb_v2]]
+      urls = ["http://bookstore-influxdb:8086"]
+      token = "BT2PIaHO3q9CyBZ7AT5yB1F_Vd-XqZVIx9J3zVAyHClvc0crtLUHviiUncoH97QnIaZi2ytMwTdtIG7uzeg-pA=="
+      organization = "bookstore"
+      bucket = "telegraf"
+      timeout = "5s"
+
+    [[inputs.net]]
+
+    [[inputs.netstat]]
+
+    [[inputs.processes]]
+
+    [[inputs.swap]]
+
+    [[inputs.consul]]
+      address = "bookstore-consul-discovery:8500"
+      scheme = "http"
+
+    [[inputs.statsd]]
+      protocol = "udp"
+      service_address = ":8125"
+      delete_gauges = true
+      delete_counters = true
+      delete_sets = true
+      delete_timings = true
+      percentiles = [90]
+      metric_separator = "_"
+      datadog_extensions = true
+      allowed_pending_messages = 10000
+      percentile_limit = 1000
+
+    [[inputs.cpu]]
+      percpu = true
+      totalcpu = true
+      collect_cpu_time = false
+
+    [[inputs.procstat]]
+      pattern = "(consul)"
+
+    [[inputs.system]]
+
+    [[inputs.diskio]]
+
+    [[inputs.syslog]]
+      server = "tcp://localhost:6514"
+---
+apiVersion: v1
 kind: Secret
 metadata:
   name: influxdb-secrets
@@ -97,7 +170,7 @@ spec:
     spec:
       containers:
       - name: telegraf
-        image: gcr.io/lyrical-tooling-475815-i8/bookstore-telegraf:latest
+        image: telegraf:1.26
         ports:
         - containerPort: 8125
           protocol: UDP
@@ -112,9 +185,15 @@ spec:
         - name: HOSTNAME
           value: "bookstore-telegraf"
         volumeMounts:
+        - name: telegraf-config
+          mountPath: /etc/telegraf/telegraf.conf
+          subPath: telegraf.conf
         - name: docker-sock
           mountPath: /var/run/docker.sock
       volumes:
+      - name: telegraf-config
+        configMap:
+          name: telegraf-config
       - name: docker-sock
         hostPath:
           path: /var/run/docker.sock

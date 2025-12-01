@@ -10,7 +10,7 @@ axios.interceptors.response.use(
     const originalRequest = error.config;
 
     // Prevent infinite loops
-    if (error.response.status === 401 && originalRequest.url.includes('grant_type=refresh_token')) {
+    if (error.response && error.response.status === 401 && originalRequest.url.includes('grant_type=refresh_token')) {
       localStorage.clear();
       store.dispatch({
         type: USER_LOGOUT
@@ -18,7 +18,7 @@ axios.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    if (error.response.status === 401) {
+    if (error.response && error.response.status === 401) {
       console.log('Refreshing Token');
       const refreshToken = JSON.parse(localStorage.getItem('userInfo'))?.refresh_token;
       if (refreshToken) {

@@ -11,7 +11,7 @@ const Footer = () => {
       <Container>
         <Row className="footer-main">
           <Col md={4} sm={12} className="footer-about mb-4 mb-md-0">
-            <h5 className="footer-title">DLK BookStore</h5>
+            <h5 className="footer-title">SCAR BookStore</h5>
             <p className="footer-desc">
               Chúng tôi cung cấp hàng ngàn đầu sách chất lượng với dịch vụ giao hàng 
               nhanh chóng và trải nghiệm mua sắm tuyệt vời.
@@ -69,7 +69,7 @@ const Footer = () => {
         <Row className="footer-bottom">
           <Col className="text-center">
             <p className="copyright">
-              &copy; {currentYear} DLK BookStore. Đã đăng ký bản quyền.
+              &copy; {currentYear} SCAR BookStore. Đã đăng ký bản quyền.
             </p>
             <div className="payment-methods">
               <i className="fab fa-cc-visa"></i>

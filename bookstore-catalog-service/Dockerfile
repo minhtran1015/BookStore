@@ -9,6 +9,7 @@ COPY target/*.jar catalog-service.jar
 
 #Using Dokerize to check whether db is up, if it is then start this service.
 COPY dockerize dockerize
+RUN chmod +x dockerize
 
 COPY ./images /images
 

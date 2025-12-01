@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { getChatResponse } from '../service/chatService';
 import { fetchBooks, fetchProductReviews } from '../service/bookService';
-import { getAllMyOrdersApi, getCartDetailsApi } from '../service/RestApiCalls';
 import '../BookChatbot.css';
 
 const BOT_NAME = 'BookBot';
@@ -34,15 +33,13 @@ const BookChatbot = () => {
     return saved ? JSON.parse(saved) : [
       { 
         sender: BOT_NAME, 
-        text: 'Hello! I\'m your personal book advisor and customer service assistant. I can help you:\n\n📚 Find and recommend books from our inventory\n📦 Answer questions about orders and shipping\n💳 Explain our ordering process and payment methods\n🔍 Check your order status (if logged in)\n\nWhat can I help you with today?' 
+        text: 'Hello! I\'m your personal book advisor. I can help you find books from our current inventory. What kind of books are you interested in?' 
       }
     ];
   });
   const [loading, setLoading] = useState(false);
   const [books, setBooks] = useState([]);
   const [reviews, setReviews] = useState({});
-  const [userOrders, setUserOrders] = useState(null);
-  const [userCart, setUserCart] = useState(null);
   const chatEndRef = useRef(null);
 
   // Get user login status from Redux store
@@ -54,7 +51,7 @@ const BookChatbot = () => {
       try {
         const allBooks = await fetchBooks();
         setBooks(allBooks);
-        
+
         // Fetch reviews for each book
         const reviewsPromises = allBooks.map(async (book) => {
           try {
@@ -73,7 +70,24 @@ const BookChatbot = () => {
         console.error('Error loading books:', error);
       }
     };
+
+    const loadUserData = async () => {
+      try {
+        const userInfo = localStorage.getItem('userInfo');
+        if (userInfo) {
+          const cartData = await getCartDetailsApi();
+          setCartItems(cartData.cartItems || []);
+
+          const ordersData = await getAllMyOrdersApi();
+          setOrderHistory(ordersData || []);
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      }
+    };
+
     loadBooks();
+    loadUserData();
   }, []);
 
   // Load user orders when logged in
@@ -144,7 +158,7 @@ const BookChatbot = () => {
   const handleSend = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
-    
+
     const userMsg = { sender: USER_NAME, text: input };
     setMessages((msgs) => [...msgs, userMsg]);
     setInput('');
@@ -162,12 +176,12 @@ const BookChatbot = () => {
         reviews: reviews[book.productId] || []
       }));
 
-      const botReply = await getChatResponse([...messages, userMsg], booksContext, userOrders, userCart);
+      const botReply = await getChatResponse([...messages, userMsg], booksContext);
       setMessages((msgs) => [...msgs, { sender: BOT_NAME, text: botReply }]);
     } catch (error) {
       console.error('Error getting chat response:', error);
       let errorMessage = 'Sorry, I\'m having trouble connecting. Please try again later.';
-      
+
       if (error.response?.status === 400) {
         errorMessage = 'Sorry, I couldn\'t process your request. Please try rephrasing your question.';
       } else if (error.response?.status === 401) {
@@ -175,9 +189,9 @@ const BookChatbot = () => {
       } else if (error.response?.status === 429) {
         errorMessage = 'Sorry, I\'m getting too many requests. Please try again in a few minutes.';
       }
-      
-      setMessages((msgs) => [...msgs, { 
-        sender: BOT_NAME, 
+
+      setMessages((msgs) => [...msgs, {
+        sender: BOT_NAME,
         text: errorMessage
       }]);
     } finally {
@@ -337,4 +351,4 @@ const BookChatbot = () => {
   );
 };
 
-export default BookChatbot; 
+export default BookChatbot;

@@ -113,10 +113,10 @@ Phần này mô tả cách triển khai và quản lý ứng dụng trên cụm 
 
 | Thành phần | Giá trị |
 |------------|---------|
-| **Project ID** | `lyrical-tooling-475815-i8` |
+| **Project ID** | `my-third-project-479302` |
 | **Cluster** | `bookstore-cluster` |
 | **Zone** | `us-central1-a` |
-| **Registry** | `gcr.io/lyrical-tooling-475815-i8` |
+| **Registry** | `gcr.io/my-third-project-479302` |
 | **ArgoCD** | https://34.136.30.74 |
 
 **Truy cập ArgoCD:**
